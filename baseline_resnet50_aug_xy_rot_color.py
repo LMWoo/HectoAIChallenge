@@ -20,7 +20,7 @@ from torch import nn, optim
 
 from sklearn.metrics import log_loss
 
-experiment_name = 'resnet50_aug_xy_rot'
+experiment_name = 'resnet50_aug_xy_rot_color'
 
 wrong_dir = os.path.join('./validation_wrong_dir', experiment_name)
 os.makedirs(wrong_dir, exist_ok=True)
@@ -251,7 +251,6 @@ optimizer = optim.Adam(model.parameters(), lr=CFG['LEARNING_RATE'])
 
 # 학습 및 검증 루프
 for epoch in range(CFG['EPOCHS']):
-    break
     # Train
     model.train()
     train_loss = 0.0
