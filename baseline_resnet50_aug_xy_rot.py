@@ -238,6 +238,7 @@ optimizer = optim.Adam(model.parameters(), lr=CFG['LEARNING_RATE'])
 
 # 학습 및 검증 루프
 for epoch in range(CFG['EPOCHS']):
+    break
     # Train
     model.train()
     train_loss = 0.0
@@ -331,11 +332,11 @@ with torch.no_grad():
 
 pred = pd.DataFrame(results)
 
-submission = pd.read_csv('../../data/data/sample_submission.csv', encoding='utf-8-sig')
+submission = pd.read_csv('../data/sample_submission.csv', encoding='utf-8-sig')
 
 # 'ID' 컬럼을 제외한 클래스 컬럼 정렬
 class_columns = submission.columns[1:]
 pred = pred[class_columns]
 
 submission[class_columns] = pred.values
-submission.to_csv(f'../../data/data/{experiment_name}_submission.csv', index=False, encoding='utf-8-sig')
+submission.to_csv(f'../data/{experiment_name}_submission.csv', index=False, encoding='utf-8-sig')
