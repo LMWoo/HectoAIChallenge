@@ -20,7 +20,7 @@ from torch import nn, optim
 
 from sklearn.metrics import log_loss
 
-experiment_name = 'resnet50'
+experiment_name = 'resnet50_aug'
 
 wrong_dir = os.path.join('./validation_wrong_dir', experiment_name)
 os.makedirs(wrong_dir, exist_ok=True)
@@ -31,7 +31,7 @@ print("Using device : ", device)
 CFG = {
     'IMG_SIZE': 224,
     'BATCH_SIZE': 64,
-    'EPOCHS': 10,
+    'EPOCHS': 100,
     'LEARNING_RATE': 1e-4,
     'SEED': 42
 }
@@ -47,6 +47,83 @@ def seed_everything(seed):
 
 seed_everything(CFG['SEED'])
 
+class ShearX(object):
+    def __init__(self, fillcolor=(128)):
+        self.fillcolor = fillcolor
+    
+    def __call__(self, x, magnitude):
+        return x.transform(
+            x.size, Image.AFFINE, (1, magnitude * random.choice([-1, 1]), 0, 0, 1, 0),
+            Image.BICUBIC, fillcolor=self.fillcolor)
+    
+class ShearY(object):
+    def __init__(self, fillcolor=(128)):
+        self.fillcolor = fillcolor
+
+    def __call__(self, x, magnitude):
+        return x.transform(
+            x.size, Image.AFFINE, (1, 0, 0, magnitude * random.choice([-1, 1]), 1, 0),
+            Image.BICUBIC, fillcolor=self.fillcolor)
+
+class TranslateX(object):
+    def __init__(self, fillcolor=(128)):
+        self.fillcolor = fillcolor
+
+    def __call__(self, x, magnitude):
+        return x.transform(
+            x.size, Image.AFFINE, (1, 0, magnitude * x.size[0] * random.choice([-1, 1]), 0, 1, 0),
+            fillcolor=self.fillcolor)
+    
+class TranslateY(object):
+    def __init__(self, fillcolor=(128)):
+        self.fillcolor = fillcolor
+
+    def __call__(self, x, magnitude):
+        return x.transform(
+            x.size, Image.AFFINE, (1, 0, 0, 0, 1, magnitude * x.size[1] * random.choice([-1, 1])),
+            fillcolor=self.fillcolor)
+
+class SubPolicy(object):
+    def __init__(self, p1, operation1, magnitude_idx1, p2, operation2, magnitude_idx2, fillcolor=(128)):
+        ranges = {
+            "shearX": np.linspace(0, 0.3, 10),
+            "shearY": np.linspace(0, 0.3, 10),
+            "translateX": np.linspace(0, 0.3, 10),
+            "translateY": np.linspace(0, 0.3, 10),
+        }
+
+        func = {
+            'shearX': ShearX(fillcolor=fillcolor),
+            "shearY": ShearY(fillcolor=fillcolor),
+            "translateX": TranslateX(fillcolor=fillcolor),
+            "translateY": TranslateY(fillcolor=fillcolor),
+        }
+
+        self.p1 = p1
+        self.operation1 = func[operation1]
+        self.magnitude1 = ranges[operation1][magnitude_idx1]
+
+        self.p2 = p2
+        self.operation2 = func[operation2]
+        self.magnitude2 = ranges[operation2][magnitude_idx2] 
+    
+    def __call__(self, img):
+        if random.random() < self.p1:
+            img = self.operation1(img, self.magnitude1)
+        if random.random() < self.p2:
+            img = self.operation2(img, self.magnitude2)
+        return img
+
+class HectoPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.3, "translateX", 5, 0.3, "translateY", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+    
 class CustomImageDataset(Dataset):
     def __init__(self, root_dir, transform=None, is_test=False):
         self.root_dir = root_dir
@@ -95,6 +172,7 @@ test_root = '../data/test'
 
 train_transform = transforms.Compose([
     transforms.Resize((CFG['IMG_SIZE'], CFG['IMG_SIZE'])),
+    HectoPolicy(),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                          std=[0.229, 0.224, 0.225])
