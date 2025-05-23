@@ -20,7 +20,7 @@ from torch import nn, optim
 
 from sklearn.metrics import log_loss
 
-experiment_name = 'resnet50_aug'
+experiment_name = 'resnet50_aug_xy_rot'
 
 wrong_dir = os.path.join('./validation_wrong_dir', experiment_name)
 os.makedirs(wrong_dir, exist_ok=True)
@@ -82,6 +82,11 @@ class TranslateY(object):
         return x.transform(
             x.size, Image.AFFINE, (1, 0, 0, 0, 1, magnitude * x.size[1] * random.choice([-1, 1])),
             fillcolor=self.fillcolor)
+    
+class Rotate(object):
+    def __call__(self, x, magnitude):
+        angle = magnitude * random.choice([-1, 1])
+        return x.rotate(angle, resample=Image.BICUBIC, fillcolor=128)
 
 class SubPolicy(object):
     def __init__(self, p1, operation1, magnitude_idx1, p2, operation2, magnitude_idx2, fillcolor=(128)):
@@ -90,6 +95,7 @@ class SubPolicy(object):
             "shearY": np.linspace(0, 0.3, 10),
             "translateX": np.linspace(0, 0.3, 10),
             "translateY": np.linspace(0, 0.3, 10),
+            "rotate": np.linspace(0, 30, 10),
         }
 
         func = {
@@ -97,6 +103,7 @@ class SubPolicy(object):
             "shearY": ShearY(fillcolor=fillcolor),
             "translateX": TranslateX(fillcolor=fillcolor),
             "translateY": TranslateY(fillcolor=fillcolor),
+            "rotate": Rotate(),
         }
 
         self.p1 = p1
@@ -118,6 +125,7 @@ class HectoPolicy(object):
     def __init__(self, fillcolor=(128)):
         self.policies = [
             SubPolicy(0.3, "translateX", 5, 0.3, "translateY", 5, fillcolor),
+            SubPolicy(0.7, "rotate", 2, 0.3, "translateX", 9, fillcolor),
         ]
     
     def __call__(self, img):
@@ -172,6 +180,8 @@ test_root = '../data/test'
 
 train_transform = transforms.Compose([
     transforms.Resize((CFG['IMG_SIZE'], CFG['IMG_SIZE'])),
+    transforms.RandomHorizontalFlip(),
+    transforms.RandomVerticalFlip(p=0.1),
     HectoPolicy(),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -323,11 +333,11 @@ with torch.no_grad():
 
 pred = pd.DataFrame(results)
 
-submission = pd.read_csv('../../data/data/sample_submission.csv', encoding='utf-8-sig')
+submission = pd.read_csv('../data/sample_submission.csv', encoding='utf-8-sig')
 
 # 'ID' 컬럼을 제외한 클래스 컬럼 정렬
 class_columns = submission.columns[1:]
 pred = pred[class_columns]
 
 submission[class_columns] = pred.values
-submission.to_csv(f'../../data/data/{experiment_name}_submission.csv', index=False, encoding='utf-8-sig')
+submission.to_csv(f'../data/{experiment_name}_submission.csv', index=False, encoding='utf-8-sig')
