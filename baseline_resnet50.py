@@ -173,7 +173,7 @@ for epoch in range(CFG['EPOCHS']):
     total = 0
     all_probs = []
     all_labels = []
-
+    wrong_mask = None
     with torch.no_grad():
         for images, labels, img_paths in tqdm(val_loader, desc=f"[Epoch {epoch+1}/{CFG['EPOCHS']}] Validation"):
             images, labels = images.to(device), labels.to(device)
@@ -193,15 +193,6 @@ for epoch in range(CFG['EPOCHS']):
 
             wrong_mask = (preds != labels).cpu()
 
-            epoch_wrong_dir = os.path.join(wrong_dir, str(epoch))
-            os.makedirs(epoch_wrong_dir, exist_ok=True)
-
-            for idx, is_wrong in enumerate(wrong_mask):
-                if is_wrong:
-                    shutil.copy(img_paths[idx], os.path.join(epoch_wrong_dir, os.path.basename(img_paths[idx])))
-
-
-
     avg_val_loss = val_loss / len(val_loader)
     val_accuracy = 100 * correct / total
     val_logloss = log_loss(all_labels, all_probs, labels=list(range(len(class_names))))
@@ -214,7 +205,15 @@ for epoch in range(CFG['EPOCHS']):
         best_logloss = val_logloss
         torch.save(model.state_dict(), f'best_model_{experiment_name}.pth')
         print(f"📦 Best model saved at epoch {epoch+1} (logloss: {val_logloss:.4f})")
+        
+        best_epoch_wrong_dir = os.path.join(wrong_dir, 'best_model')
 
+        if os.path.exists(best_epoch_wrong_dir):
+            shutil.rmtree(best_epoch_wrong_dir)
+        os.makedirs(best_epoch_wrong_dir, exist_ok=True)     
+        for idx, is_wrong in enumerate(wrong_mask):
+            if is_wrong:
+                shutil.copy(img_paths[idx], os.path.join(best_epoch_wrong_dir, os.path.basename(img_paths[idx])))        
 
 test_dataset = CustomImageDataset(test_root, transform=val_transform, is_test=True)
 test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
