@@ -20,7 +20,7 @@ from torch import nn, optim
 
 from sklearn.metrics import log_loss
 
-experiment_name = 'resnet50_aug'
+experiment_name = 'resnet50_aug_xy_rot'
 
 wrong_dir = os.path.join('./validation_wrong_dir', experiment_name)
 os.makedirs(wrong_dir, exist_ok=True)
