@@ -31,7 +31,7 @@ print("Using device : ", device)
 CFG = {
     'IMG_SIZE': 224,
     'BATCH_SIZE': 64,
-    'EPOCHS': 100,
+    'EPOCHS': 30,
     'LEARNING_RATE': 1e-4,
     'SEED': 42
 }
@@ -238,7 +238,6 @@ optimizer = optim.Adam(model.parameters(), lr=CFG['LEARNING_RATE'])
 
 # 학습 및 검증 루프
 for epoch in range(CFG['EPOCHS']):
-    break
     # Train
     model.train()
     train_loss = 0.0
