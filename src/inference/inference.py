@@ -6,6 +6,7 @@ sys.path.append(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 )
 
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,6 +16,15 @@ from src.utils.utils import model_dir, calculate_hash, read_hash
 from src.utils.utils import CFG
 from src.utils.constant import Augmentations
 from src.dataset.HectoDataset import get_datasets
+
+from dotenv import load_dotenv
+from src.postprocess.postprocess import write_db
+
+def recommend_to_df(recommend):
+    return pd.DataFrame(
+        data=[101, 102, 103],
+        columns="reommend_content_id".split()
+    )
 
 def init_model(checkpoint):
     model = Resnet50(**checkpoint["model_params"])
@@ -41,7 +51,7 @@ def load_checkpoint():
     else:
         raise FileExistsError("Not found or invalid model file")
 
-def inference(model, criterion, augmentation_name):
+def inference(model, image, criterion, device, augmentation_name):
     Augmentations.validation(augmentation_name)
 
     _, _, _, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
@@ -49,8 +59,6 @@ def inference(model, criterion, augmentation_name):
     model.to(device)
 
     results = []
-
-    image = torch.randn((1, 3, 224, 224))
     image = image.to(device)
     output = model(image)
     prob = F.softmax(output, dim=1)
@@ -59,6 +67,8 @@ def inference(model, criterion, augmentation_name):
 
 
 if __name__ == "__main__":
+    load_dotenv()
+    
     CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -66,6 +76,11 @@ if __name__ == "__main__":
     checkpoint = load_checkpoint()
 
     model, criterion = init_model(checkpoint)
-
-    result = inference(model, criterion, "translate_xy_rot_policy")
+    
+    image = torch.randn((1, 3, 224, 224))
+    
+    result = inference(model, image, criterion, device, "translate_xy_rot_policy")
     print(result)
+    
+    recommend_df = recommend_to_df(result)
+    write_db(recommend_df, "mlops", "recommend")

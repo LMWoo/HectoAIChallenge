@@ -33,6 +33,10 @@ from src.utils.constant import Optimizers, Models, Augmentations
 from src.dataset.HectoDataset import get_datasets
 from src.model.resnet50 import Resnet50
 from src.train.train import train
+from src.inference.inference import (
+    load_checkpoint, init_model, inference, recommend_to_df
+)
+from src.postprocess.postprocess import write_db
 
 def get_runs(project_name):
     return wandb.Api().runs(path=project_name, order="-created_at")
@@ -124,6 +128,19 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
     submission[class_columns] = pred.values
     submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission.csv") , index=False, encoding='utf-8-sig')
 
+def run_inference(device, batch_size=64):
+    checkpoint = load_checkpoint()
+
+    model, criterion = init_model(checkpoint)
+    
+    image = torch.randn((1, 3, 224, 224))
+    
+    result = inference(model, image, criterion, device, "translate_xy_rot_policy")
+    print(result)
+    
+    recommend_df = recommend_to_df(result)
+    write_db(recommend_df, "mlops", "recommend")
+
 if __name__ == '__main__':
     CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
     CFG['WRONG_DIR'] = os.path.join('./validation_wrong_dir', CFG['EXPERIMENT_NAME'])
@@ -137,4 +154,5 @@ if __name__ == '__main__':
     fire.Fire({
         "train": partial(run_train, device=device),
         "test": run_test,
+        "inference": partial(run_inference, device=device),
     })

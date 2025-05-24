@@ -212,5 +212,6 @@ pyrightconfig.json
 /src/validation_wrong_dir
 /data
 /wandb
+/models
 .env
 *.pth
