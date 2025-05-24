@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, Subset
 from sklearn.model_selection import train_test_split
 
 from src.utils.utils import project_path, CFG
-from src.dataset.preprocessing import HectoPolicy, get_transforms
+from src.dataset.preprocessing import get_transforms
 
 class CustomImageDataset(Dataset):
     def __init__(self, root_dir, transform=None, is_test=False):
@@ -15,7 +15,7 @@ class CustomImageDataset(Dataset):
         self.transform = transform
         self.is_test = is_test
         self.samples = []
-
+    
         if is_test:
             for fname in sorted(os.listdir(root_dir)):
                 if fname.lower().endswith(('.jpg')):
@@ -40,7 +40,6 @@ class CustomImageDataset(Dataset):
         if self.is_test:
             img_path = self.samples[idx][0]
             image = Image.open(img_path).convert('RGB')
-            
             if self.transform:
                 image = self.transform(image)
             return image
@@ -70,8 +69,7 @@ class CustomImageDataset(Dataset):
 #         range(len(targets)), test_size=0.2, stratify=targets, random_state=42
 #     )
 
-def get_datasets():
-    print(project_path())
+def get_datasets(augmentation_cls):
     train_root = os.path.join(project_path(), 'data/train')
     test_root = os.path.join(project_path(), 'data/test')
 
@@ -86,10 +84,11 @@ def get_datasets():
         range(len(targets)), test_size=0.2, stratify=targets, random_state=CFG['SEED']
     )
 
-    train_transform, val_transform = get_transforms()
+    train_transform, val_transform = get_transforms(augmentation_cls)
     # Subset + transform
     train_dataset = Subset(CustomImageDataset(train_root, transform=train_transform), train_idx)
     val_dataset = Subset(CustomImageDataset(train_root, transform=val_transform), val_idx)
+
     print(f'train image num: {len(train_dataset)}, valid image num: {len(val_dataset)}')
 
     test_dataset = CustomImageDataset(test_root, transform=val_transform, is_test=True)

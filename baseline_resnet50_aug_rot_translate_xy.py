@@ -124,8 +124,8 @@ class SubPolicy(object):
 class HectoPolicy(object):
     def __init__(self, fillcolor=(128)):
         self.policies = [
-            SubPolicy(0.7, "rotate", 2, 0.3, "translateX", 9, fillcolor),
-            SubPolicy(0.7, "rotate", 2, 0.3, "translateY", 9, fillcolor),
+            SubPolicy(0.7, "rotate", 2, 0.3, "translateX", 5, fillcolor),
+            SubPolicy(0.7, "rotate", 2, 0.3, "translateY", 5, fillcolor),
         ]
     
     def __call__(self, img):

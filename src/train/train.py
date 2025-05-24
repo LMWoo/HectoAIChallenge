@@ -12,15 +12,15 @@ from src.utils.utils import CFG
 def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
     model.train()
     train_loss = 0.0
-    for images, labels, img_paths in tqdm(train_loader, desc=f"[Epoch {epoch + 1}/{CFG['EPOCHS']}] Training"):
+    for images, labels, img_paths in tqdm(train_loader, desc=f"[Epoch {epoch+1}/{CFG['EPOCHS']}] Training"):
         images, labels = images.to(device), labels.to(device)
         optimizer.zero_grad()
-        outputs = model(images)
+        outputs = model(images)  # logits
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
         train_loss += loss.item()
-        
+
     avg_train_loss = train_loss / len(train_loader)
     return avg_train_loss
 
@@ -61,7 +61,7 @@ def validation_one_epoch(model, val_loader, class_names, criterion, device, epoc
     return avg_val_loss, val_accuracy, val_logloss, wrong_imgs
         
 def save_best_epoch(model, epoch, val_logloss, wrong_imgs):
-    torch.save(model.state_dict(), f'best_model_{CFG['EXPERIMENT_NAME']}')
+    torch.save(model.state_dict(), f"best_model_{CFG['EXPERIMENT_NAME']}.pth")
     print(f"Best model saved at epoch {epoch+1} (logloss: {val_logloss:.4f})")
 
     best_epoch_wrong_dir = os.path.join(CFG['WRONG_DIR'], 'best_model')

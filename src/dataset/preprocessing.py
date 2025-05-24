@@ -93,22 +93,31 @@ class SubPolicy(object):
 
         return img
 
-class HectoPolicy(object):
+class TranslateXYPolicy(object):
     def __init__(self, fillcolor=(128)):
         self.policies = [
             SubPolicy(0.3, "translateX", 5, 0.3, "translateY", 5, fillcolor),
-            SubPolicy(0.7, "rotate", 2, 0.3, "translateX", 9, fillcolor),
-            SubPolicy(0.4, "color", 3, 0.6, "brightness", 3, fillcolor),
         ]
     
     def __call__(self, img):
         policy_idx = random.randint(0, len(self.policies) - 1)
         return self.policies[policy_idx](img)
 
-def get_transforms():
+class TranslateXYROTPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.3, "translateX", 5, fillcolor),
+            SubPolicy(0.7, "rotate", 2, 0.3, "translateY", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+    
+def get_transforms(augmentation_cls):
     train_transform = transforms.Compose([
         transforms.Resize((CFG['IMG_SIZE'], CFG['IMG_SIZE'])),
-        HectoPolicy(),
+        augmentation_cls(),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                             std=[0.229, 0.224, 0.225])

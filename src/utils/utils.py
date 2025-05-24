@@ -37,4 +37,4 @@ CFG = {
     'SEED': 42,
     'EXPERIMENT_NAME' : None,
     'WRONG_DIR' : None
-},
+}
