@@ -3,6 +3,7 @@ import shutil
 
 import torch
 import torch.nn.functional as F
+import wandb
 from tqdm import tqdm
 from sklearn.metrics import log_loss
 
@@ -78,7 +79,11 @@ def train(model, train_loader, val_loader, class_names, criterion, optimizer, de
     for epoch in range(CFG['EPOCHS']):
         avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch)
         avg_val_loss, val_accuracy, val_logloss, wrong_imgs = validation_one_epoch(model, val_loader, class_names, criterion, device, epoch)
-
+        wandb.log({"Loss/Train": avg_train_loss})
+        wandb.log({"Loss/Valid": avg_val_loss})
+        wandb.log({"LogLoss/Valid": val_logloss})
+        wandb.log({"Accuracy/Valid": val_accuracy})
+        
         print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
 
         if val_logloss < best_logloss:

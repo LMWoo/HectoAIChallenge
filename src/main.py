@@ -9,6 +9,11 @@ import random
 import shutil
 from functools import partial
 
+import wandb
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -22,6 +27,7 @@ import pandas as pd
 import numpy as np
 import fire
 
+
 from src.utils.utils import seed_everything, project_path, CFG
 from src.utils.constant import Optimizers, Models, Augmentations
 from src.dataset.HectoDataset import get_datasets
@@ -29,6 +35,17 @@ from src.model.resnet50 import Resnet50
 from src.train.train import train
 
 def run_train(model_name, optimizer_name, augmentation_name, device):
+    api_key  =os.environ["WANDB_API_KEY"]
+    wandb.login(key=api_key)
+
+    project_name = CFG['EXPERIMENT_NAME'].replace("_", "-")
+    wandb.init(
+        project=project_name,
+        notes="content-based classfication model",
+        tags=["content-based", "classification"],
+        config=locals(),
+    )
+
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
@@ -97,7 +114,7 @@ if __name__ == '__main__':
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Using device : ", device)
         
-    seed_everything(CFG['SEED'])    
+    seed_everything(CFG['SEED'])
 
     fire.Fire({
         "train": partial(run_train, device=device),
