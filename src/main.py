@@ -70,15 +70,19 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
     val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
 
     model_class = Models[model_name.upper()].value
+    
+    model_params = {
+        "num_classes": len(class_names),
+    }
 
-    model = model_class(num_classes=len(class_names)).to(device)
+    model = model_class(**model_params).to(device)
 
     criterion = nn.CrossEntropyLoss()
 
     optimizer_class = Optimizers[optimizer_name.upper()].value
     optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'])
     
-    train(model, train_loader, val_loader, class_names, criterion, optimizer, device)
+    train(model, train_loader, val_loader, model_params, criterion, optimizer, device)
 
 def run_test(model_name, optimizer_name, augmentation_name, device):
     Models.validation(model_name)

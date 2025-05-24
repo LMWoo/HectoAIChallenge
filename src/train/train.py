@@ -9,7 +9,7 @@ from tqdm import tqdm
 from sklearn.metrics import log_loss
 
 from src.utils.utils import CFG, model_dir
-
+from src.model.resnet50 import Resnet50, save_best_epoch
 
 def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
     model.train()
@@ -26,7 +26,7 @@ def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
     avg_train_loss = train_loss / len(train_loader)
     return avg_train_loss
 
-def validation_one_epoch(model, val_loader, class_names, criterion, device, epoch):
+def validation_one_epoch(model, val_loader, model_params, criterion, device, epoch):
     model.eval()
     val_loss = 0.0
     correct = 0
@@ -58,39 +58,16 @@ def validation_one_epoch(model, val_loader, class_names, criterion, device, epoc
         
     avg_val_loss = val_loss / len(val_loader)
     val_accuracy = 100 * correct / total
-    val_logloss = log_loss(all_labels, all_probs, labels=list(range(len(class_names))))
+    val_logloss = log_loss(all_labels, all_probs, labels=list(range(model_params["num_classes"])))
 
     return avg_val_loss, val_accuracy, val_logloss, wrong_imgs
-        
-def save_best_epoch(model, epoch, optimizer, val_logloss, wrong_imgs):
-    save_dir = model_dir(CFG['EXPERIMENT_NAME'])
-    os.makedirs(save_dir, exist_ok=True)
 
-    current_time = datetime.datetime.now().strftime("%y%m%d%H%M%S")
-    dst = os.path.join(save_dir, f"E{epoch}_T{current_time}.pth")
-    torch.save({
-        "epoch": epoch,
-        # "model_params": model_params,
-        "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
-        "val_logloss": val_logloss,
-    }, dst)
-    print(f"Best model saved at epoch {epoch+1} (logloss: {val_logloss:.4f})")
-
-    best_epoch_wrong_dir = os.path.join(CFG['WRONG_DIR'], 'best_model')
-
-    if os.path.exists(best_epoch_wrong_dir):
-        shutil.rmtree(best_epoch_wrong_dir)
-    os.makedirs(best_epoch_wrong_dir, exist_ok=True)
-    for wrong_img in wrong_imgs:
-        shutil.copy(wrong_img, os.path.join(best_epoch_wrong_dir, os.path.basename(wrong_img)))
-
-def train(model, train_loader, val_loader, class_names, criterion, optimizer, device):
+def train(model, train_loader, val_loader, model_params, criterion, optimizer, device):
     best_logloss = float('inf')
 
     for epoch in range(CFG['EPOCHS']):
         avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch)
-        avg_val_loss, val_accuracy, val_logloss, wrong_imgs = validation_one_epoch(model, val_loader, class_names, criterion, device, epoch)
+        avg_val_loss, val_accuracy, val_logloss, wrong_imgs = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
         wandb.log({"Loss/Train": avg_train_loss})
         wandb.log({"Loss/Valid": avg_val_loss})
         wandb.log({"LogLoss/Valid": val_logloss})
@@ -100,4 +77,4 @@ def train(model, train_loader, val_loader, class_names, criterion, optimizer, de
 
         if val_logloss < best_logloss:
             best_logloss = val_logloss
-            save_best_epoch(model, epoch, optimizer, val_logloss, wrong_imgs)
+            save_best_epoch(model, epoch, optimizer, model_params, val_logloss, wrong_imgs)
