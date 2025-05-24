@@ -28,19 +28,33 @@ import numpy as np
 import fire
 
 
-from src.utils.utils import seed_everything, project_path, CFG
+from src.utils.utils import seed_everything, project_path, auto_increment_run_suffix, CFG
 from src.utils.constant import Optimizers, Models, Augmentations
 from src.dataset.HectoDataset import get_datasets
 from src.model.resnet50 import Resnet50
 from src.train.train import train
+
+def get_runs(project_name):
+    return wandb.Api().runs(path=project_name, order="-created_at")
+
+def get_latest_run(project_name):
+    runs = get_runs(project_name)
+    if not runs:
+        return f"{project_name}-000"
+    
+    return runs[0].name
 
 def run_train(model_name, optimizer_name, augmentation_name, device):
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
     project_name = CFG['EXPERIMENT_NAME'].replace("_", "-")
+    run_name = get_latest_run(project_name)
+    next_run_name = auto_increment_run_suffix(run_name)
     wandb.init(
         project=project_name,
+        id=next_run_name,
+        name=next_run_name,
         notes="content-based classfication model",
         tags=["content-based", "classification"],
         config=locals(),

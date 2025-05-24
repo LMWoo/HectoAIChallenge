@@ -29,12 +29,18 @@ def model_dir(model_name):
         model_name
     )
 
+def auto_increment_run_suffix(name: str, pad=3):
+    suffix = name.split("-")[-1]
+    next_suffix = str(int(suffix) + 1).zfill(pad)
+    return name.replace(suffix, next_suffix)
+
 CFG = {
     'IMG_SIZE': 224,
     'BATCH_SIZE': 64,
     'EPOCHS': 30,
     'LEARNING_RATE': 1e-4,
     'SEED': 42,
+
     'EXPERIMENT_NAME' : None,
     'WRONG_DIR' : None
 }
