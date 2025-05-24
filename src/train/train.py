@@ -1,5 +1,6 @@
 import os
 import shutil
+import datetime
 
 import torch
 import torch.nn.functional as F
@@ -7,7 +8,7 @@ import wandb
 from tqdm import tqdm
 from sklearn.metrics import log_loss
 
-from src.utils.utils import CFG
+from src.utils.utils import CFG, model_dir
 
 
 def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
@@ -61,8 +62,19 @@ def validation_one_epoch(model, val_loader, class_names, criterion, device, epoc
 
     return avg_val_loss, val_accuracy, val_logloss, wrong_imgs
         
-def save_best_epoch(model, epoch, val_logloss, wrong_imgs):
-    torch.save(model.state_dict(), f"best_model_{CFG['EXPERIMENT_NAME']}.pth")
+def save_best_epoch(model, epoch, optimizer, val_logloss, wrong_imgs):
+    save_dir = model_dir(CFG['EXPERIMENT_NAME'])
+    os.makedirs(save_dir, exist_ok=True)
+
+    current_time = datetime.datetime.now().strftime("%y%m%d%H%M%S")
+    dst = os.path.join(save_dir, f"E{epoch}_T{current_time}.pth")
+    torch.save({
+        "epoch": epoch,
+        # "model_params": model_params,
+        "model_state_dict": model.state_dict(),
+        "optimizer_state_dict": optimizer.state_dict(),
+        "val_logloss": val_logloss,
+    }, dst)
     print(f"Best model saved at epoch {epoch+1} (logloss: {val_logloss:.4f})")
 
     best_epoch_wrong_dir = os.path.join(CFG['WRONG_DIR'], 'best_model')
@@ -88,4 +100,4 @@ def train(model, train_loader, val_loader, class_names, criterion, optimizer, de
 
         if val_logloss < best_logloss:
             best_logloss = val_logloss
-            save_best_epoch(model, epoch, val_logloss, wrong_imgs)
+            save_best_epoch(model, epoch, optimizer, val_logloss, wrong_imgs)
