@@ -1,4 +1,10 @@
 import os
+import sys
+
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+)
+
 import random
 import shutil
 
@@ -17,6 +23,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import log_loss
 
 from src.utils.utils import seed_everything, CFG
+from src.dataset.HectoDataset import get_datasets
 
 experiment_name = 'resnet50_aug_xy_rot'
 
@@ -25,16 +32,13 @@ os.makedirs(wrong_dir, exist_ok=True)
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("Using device : ", device)
-
-
-
     
 seed_everything(CFG['SEED'])    
 
+train_dataset, val_dataset, test_dataset, class_names = get_datasets()
 
 train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
-
 
 class BaseModel(nn.Module):
     def __init__(self, num_classes):
@@ -119,7 +123,7 @@ for epoch in range(CFG['EPOCHS']):
         for wrong_img in wrong_imgs:
             shutil.copy(wrong_img, os.path.join(best_epoch_wrong_dir, os.path.basename(wrong_img)))
 
-test_dataset = CustomImageDataset(test_root, transform=val_transform, is_teat=True)
+# test_dataset = CustomImageDataset(test_root, transform=val_transform, is_teat=True)
 test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
 
 model = BaseModel(num_classes=len(class_names))

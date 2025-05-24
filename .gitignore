@@ -209,4 +209,6 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,visualstudiocode,python
 /validation_wrong_dir
+/src/validation_wrong_dir
+/data
 *.pth
