@@ -34,5 +34,7 @@ CFG = {
     'BATCH_SIZE': 64,
     'EPOCHS': 30,
     'LEARNING_RATE': 1e-4,
-    'SEED': 42
-}
+    'SEED': 42,
+    'EXPERIMENT_NAME' : None,
+    'WRONG_DIR' : None
+},
