@@ -234,7 +234,6 @@ for epoch in range(CFG['EPOCHS']):
     model.train()
     train_loss = 0.0
     for images, labels, img_paths in tqdm(train_loader, desc=f"[Epoch {epoch+1}/{CFG['EPOCHS']}] Training"):
-        print(images)
         images, labels = images.to(device), labels.to(device)
         optimizer.zero_grad()
         outputs = model(images)  # logits
