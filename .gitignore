@@ -211,4 +211,5 @@ pyrightconfig.json
 /validation_wrong_dir
 /src/validation_wrong_dir
 /data
+.env
 *.pth
