@@ -66,23 +66,3 @@ def inference(model, image, criterion, device, augmentation_name):
     prob = F.softmax(output, dim=1)
     pred_idx = prob.argmax(dim=1).item()
     return class_names[pred_idx]
-
-
-if __name__ == "__main__":
-    load_dotenv()
-    
-    CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
-    
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-    checkpoint = load_checkpoint()
-
-    model, criterion = init_model(checkpoint, "resnet_50")
-    
-    image = torch.randn((1, 3, 224, 224))
-    
-    result = inference(model, image, criterion, device, "translate_xy_rot_policy")
-    print(result)
-    
-    recommend_df = recommend_to_df(result)
-    write_db(recommend_df, "mlops", "recommend")

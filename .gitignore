@@ -214,5 +214,6 @@ pyrightconfig.json
 /wandb
 /models
 /augmentations
+nohup.out
 .env
 *.pth
