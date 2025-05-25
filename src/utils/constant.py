@@ -4,7 +4,12 @@ import torch.optim as optim
 
 from src.model.resnet50 import Resnet50
 
-from src.dataset.augmentation import TranslateXYPolicy, TranslateXYROTPolicy
+from src.dataset.policy import (
+    IdentityPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ShearXPolicy, 
+    ShearYPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ColorPolicy,
+    PosterizePolicy, SolarizePolicy, ContrastPolicy, SharpnessPolicy, BrightnessPolicy,
+    AutoContrastPolicy, EqualizePolicy, InvertPolicy, TranslateXYPolicy, TranslateXYROTPolicy
+)
 
 class CustomEnum(Enum):
     @classmethod
@@ -32,5 +37,21 @@ class Optimizers(CustomEnum):
     RMSPROP = optim.RMSprop
 
 class Augmentations(CustomEnum):
+    IDENTITY_POLICY = IdentityPolicy
+    TRANSLATE_X_POLICY = TranslateXPolicy
+    TRANSLATE_Y_POLICY = TranslateYPolicy
+    ROTATE_POLICY = RotatePolicy
+    SHEAR_X_POLICY = ShearXPolicy
+    SHEAR_Y_POLICY = ShearYPolicy
+    COLOR_POLICY = ColorPolicy
+    POSTERIZE_POLICY = PosterizePolicy
+    SOLARIZE_POLICY = SolarizePolicy
+    CONTRAST_POLICY = ContrastPolicy
+    SHARPNESS_POLICY = SharpnessPolicy
+    BRIGHTNESS_POLICY = BrightnessPolicy
+    AUTO_CONTRAST_POLICY = AutoContrastPolicy
+    EQUALIZE_POLICY = EqualizePolicy
+    INVERT_POLICY = InvertPolicy
+
     TRANSLATE_XY_POLICY = TranslateXYPolicy
     TRANSLATE_XY_ROT_POLICY = TranslateXYROTPolicy

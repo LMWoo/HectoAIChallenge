@@ -44,7 +44,7 @@ def get_runs(project_name):
 def get_latest_run(project_name):
     runs = get_runs(project_name)
     if not runs:
-        return f"{project_name}-000"
+        return f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
     
     return runs[0].name
 
@@ -52,16 +52,26 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
-    project_name = CFG['EXPERIMENT_NAME'].replace("_", "-")
-    run_name = get_latest_run(project_name)
+    project_name = "classification" #  + CFG['EXPERIMENT_NAME'].replace("_", "-")
+    try:
+        run_name = get_latest_run(project_name)
+    except Exception as e:
+        print(f"[W&B WARNING] Failed to get previous runs: {e}")
+        run_name = f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
+    
     next_run_name = auto_increment_run_suffix(run_name)
     wandb.init(
         project=project_name,
         id=next_run_name,
         name=next_run_name,
-        notes="content-based classfication model",
+        notes="content-based classification model",
         tags=["content-based", "classification"],
-        config=locals(),
+        config={
+            "model_name": model_name,
+            "optimizer_name": optimizer_name,
+            "augmentation_name": augmentation_name,
+            "device": str(device),
+        }
     )
 
     Models.validation(model_name)
@@ -145,8 +155,8 @@ def run_inference(device, batch_size=64):
     recommend_df = recommend_to_df(result)
     write_db(recommend_df, "mlops", "recommend")
 
-if __name__ == '__main__':
-    CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
+def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name):
+    CFG['EXPERIMENT_NAME'] = experiment_name
     CFG['WRONG_DIR'] = os.path.join('./validation_wrong_dir', CFG['EXPERIMENT_NAME'])
     os.makedirs(CFG['WRONG_DIR'], exist_ok=True)
 
@@ -154,11 +164,12 @@ if __name__ == '__main__':
     print("Using device : ", device)
         
     seed_everything(CFG['SEED'])
+    if run_mode == "train":
+        run_train(model_name, optimizer_name, augmentation_name, device)
+    elif run_mode == "test":
+        run_test(model_name, optimizer_name, augmentation_name, device)
+    elif run_mode == "inference":
+        run_inference(device)
 
-    fire.Fire({
-        "train": partial(run_train, device=device),
-        "test": partial(run_test, device=device),
-        "inference": partial(run_inference, device=device),
-
-        # CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
-    })
+if __name__ == '__main__':
+    fire.Fire(main)

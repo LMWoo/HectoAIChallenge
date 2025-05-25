@@ -1,0 +1,2 @@
+python src/main.py --run_mode train --experiment_name identity_policy --model_name resnet_50 --optimizer_name adam --augmentation_name identity_policy
+python src/main.py --run_mode test --experiment_name identity_policy --model_name resnet_50 --optimizer_name adam --augmentation_name identity_policy

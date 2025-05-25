@@ -213,5 +213,6 @@ pyrightconfig.json
 /data
 /wandb
 /models
+/augmentations
 .env
 *.pth

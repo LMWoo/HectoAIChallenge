@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, Subset
 from sklearn.model_selection import train_test_split
 
 from src.utils.utils import project_path, CFG
-from src.dataset.augmentation import get_transforms
+from src.dataset.transform import get_transforms
 
 class BaselineDataset(Dataset):
     def __init__(self, root_dir, transform=None, is_test=False):
