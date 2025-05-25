@@ -48,7 +48,7 @@ def load_checkpoint():
     model_path = os.path.join(target_dir, "best_model.pth")
 
     if model_validation(model_path):
-        checkpoint = torch.load(model_path)
+        checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
         return checkpoint
     else:
         raise FileExistsError("Not found or invalid model file")
