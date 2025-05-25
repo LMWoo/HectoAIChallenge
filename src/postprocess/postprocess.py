@@ -6,7 +6,7 @@ import pandas as pd
 def get_engine(db_name):
     engine = create_engine(url=(
         f"mysql+mysqldb://"
-        f"{os.environ.get('DB_USER')}"
+        f"{os.environ.get('DB_USER')}:"
         f"{os.environ.get('DB_PASSWORD')}@"
         f"{os.environ.get('DB_HOST')}:"
         f"{os.environ.get('DB_PORT')}/"

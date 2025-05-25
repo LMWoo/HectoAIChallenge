@@ -157,17 +157,19 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
     submission[class_columns] = pred.values
     submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission.csv") , index=False, encoding='utf-8-sig')
 
-def run_inference(device, batch_size=64):
+def run_inference(model_name, augmentation_name, device, batch_size=64):
+    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
+
     checkpoint = load_checkpoint()
 
-    model, criterion = init_model(checkpoint)
+    model, criterion = init_model(checkpoint, model_name)
     
     image = torch.randn((1, 3, 224, 224))
     
-    result = inference(model, image, criterion, device, "translate_xy_rot_policy")
-    print(result)
+    result = inference(model, image, criterion, device, augmentation_name)
+    print(result, class_names.index(result))
     
-    recommend_df = recommend_to_df(result)
+    recommend_df = recommend_to_df(class_names.index(result))
     write_db(recommend_df, "mlops", "recommend")
 
 def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name):
@@ -184,7 +186,7 @@ def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_nam
     elif run_mode == "test":
         run_test(model_name, optimizer_name, augmentation_name, device)
     elif run_mode == "inference":
-        run_inference(device)
+        run_inference(model_name, augmentation_name, device)
 
 if __name__ == '__main__':
     fire.Fire(main)

@@ -23,7 +23,7 @@ from src.utils.constant import Optimizers, Models, Augmentations
 
 def recommend_to_df(recommend):
     return pd.DataFrame(
-        data=[101, 102, 103],
+        data=[recommend],
         columns="reommend_content_id".split()
     )
 
