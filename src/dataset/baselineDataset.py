@@ -7,7 +7,7 @@ from torch.utils.data import Dataset, Subset
 from sklearn.model_selection import train_test_split
 
 from src.utils.utils import project_path, CFG
-from src.dataset.preprocessing import get_transforms
+from src.dataset.augmentation import get_transforms
 
 class BaselineDataset(Dataset):
     def __init__(self, root_dir, transform=None, is_test=False):
@@ -51,23 +51,10 @@ class BaselineDataset(Dataset):
         return image, label, img_path
 
 # def read_dataset():
-#     train_root = os.path.join(project_path(), 'train')
-#     test_root = os.path.join(project_path(), 'test')
-    
-#     full_dataset = CustomImageDataset(train_root, transform=None)
-#     print(f'Total image num: {len(full_dataset)}')
-    
-#     targets = [label for _, label in full_dataset.samples]
-#     class_names = full_dataset.classes
-    
-#     return train_dataset, test_dataset
+#   pass
     
 # def split_dataset():
-#     train_dataset, test_dataset = read_dataset()
-    
-#     train_idx, val_idx = train_test_split(
-#         range(len(targets)), test_size=0.2, stratify=targets, random_state=42
-#     )
+#   pass
 
 def get_datasets(augmentation_cls):
     train_root = os.path.join(project_path(), 'data/train')

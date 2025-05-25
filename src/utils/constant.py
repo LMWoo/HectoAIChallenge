@@ -4,7 +4,7 @@ import torch.optim as optim
 
 from src.model.resnet50 import Resnet50
 
-from src.dataset.preprocessing import TranslateXYPolicy, TranslateXYROTPolicy
+from src.dataset.augmentation import TranslateXYPolicy, TranslateXYROTPolicy
 
 class CustomEnum(Enum):
     @classmethod
