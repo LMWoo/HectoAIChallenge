@@ -57,7 +57,7 @@ def auto_increment_run_suffix(name: str, pad=3):
 CFG = {
     'IMG_SIZE': 224,
     'BATCH_SIZE': 64,
-    'EPOCHS': 30,
+    'EPOCHS': 5,
     'LEARNING_RATE': 1e-4,
     'SEED': 42,
 

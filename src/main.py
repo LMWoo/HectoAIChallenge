@@ -42,11 +42,23 @@ def get_runs(project_name):
     return wandb.Api().runs(path=project_name, order="-created_at")
 
 def get_latest_run(project_name):
-    runs = get_runs(project_name)
-    if not runs:
-        return f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
+    # runs = get_runs(project_name)
+    # if not runs:
+    #     return f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
     
-    return runs[0].name
+    # return runs[0].name
+    runs = get_runs(project_name)
+    
+    filtered = [
+        run for run in runs
+        if run.config.get("experiment_name") == CFG["EXPERIMENT_NAME"]
+    ]
+    
+    if not filtered:
+        default_name = default_name or f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
+    
+    return filtered[0].name
+    
 
 def run_train(model_name, optimizer_name, augmentation_name, device):
     api_key  =os.environ["WANDB_API_KEY"]
@@ -67,10 +79,12 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
         notes="content-based classification model",
         tags=["content-based", "classification"],
         config={
+            "experiment_name": CFG['EXPERIMENT_NAME'],
             "model_name": model_name,
             "optimizer_name": optimizer_name,
             "augmentation_name": augmentation_name,
             "device": str(device),
+            
         }
     )
 
