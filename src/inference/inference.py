@@ -19,6 +19,7 @@ from src.dataset.HectoDataset import get_datasets
 
 from dotenv import load_dotenv
 from src.postprocess.postprocess import write_db
+from src.utils.constant import Optimizers, Models, Augmentations
 
 def recommend_to_df(recommend):
     return pd.DataFrame(
@@ -26,8 +27,9 @@ def recommend_to_df(recommend):
         columns="reommend_content_id".split()
     )
 
-def init_model(checkpoint):
-    model = Resnet50(**checkpoint["model_params"])
+def init_model(checkpoint, model_name):
+    model_class = Models[model_name.upper()].value
+    model = model_class(**checkpoint["model_params"])
     model.load_state_dict(checkpoint["model_state_dict"])
     criterion = nn.CrossEntropyLoss()
     return model, criterion
@@ -75,7 +77,7 @@ if __name__ == "__main__":
 
     checkpoint = load_checkpoint()
 
-    model, criterion = init_model(checkpoint)
+    model, criterion = init_model(checkpoint, "resnet_50")
     
     image = torch.randn((1, 3, 224, 224))
     

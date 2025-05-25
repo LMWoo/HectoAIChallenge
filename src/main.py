@@ -97,10 +97,14 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
 
     test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
 
-    model_class = Models[model_name.upper()].value
+    # model_class = Models[model_name.upper()].value
 
-    model = model_class(num_classes=len(class_names))
-    model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
+    checkpoint = load_checkpoint()
+
+    model, criterion = init_model(checkpoint, model_name)
+
+    # model = model_class(num_classes=len(class_names))
+    # model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
 
     model.eval()
     results = []
@@ -153,6 +157,8 @@ if __name__ == '__main__':
 
     fire.Fire({
         "train": partial(run_train, device=device),
-        "test": run_test,
+        "test": partial(run_test, device=device),
         "inference": partial(run_inference, device=device),
+
+        # CFG['EXPERIMENT_NAME'] = 'resnet50_aug_xy_rot'
     })
