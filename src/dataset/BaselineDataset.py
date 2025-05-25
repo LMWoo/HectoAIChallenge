@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from src.utils.utils import project_path, CFG
 from src.dataset.preprocessing import get_transforms
 
-class CustomImageDataset(Dataset):
+class BaselineDataset(Dataset):
     def __init__(self, root_dir, transform=None, is_test=False):
         self.root_dir = root_dir
         self.transform = transform
@@ -73,7 +73,7 @@ def get_datasets(augmentation_cls):
     train_root = os.path.join(project_path(), 'data/train')
     test_root = os.path.join(project_path(), 'data/test')
 
-    full_dataset = CustomImageDataset(train_root, transform=None)
+    full_dataset = BaselineDataset(train_root, transform=None)
     print(f'Total image num: {len(full_dataset)}')
 
     targets = [label for _, label in full_dataset.samples]
@@ -86,12 +86,12 @@ def get_datasets(augmentation_cls):
 
     train_transform, val_transform = get_transforms(augmentation_cls)
     # Subset + transform
-    train_dataset = Subset(CustomImageDataset(train_root, transform=train_transform), train_idx)
-    val_dataset = Subset(CustomImageDataset(train_root, transform=val_transform), val_idx)
+    train_dataset = Subset(BaselineDataset(train_root, transform=train_transform), train_idx)
+    val_dataset = Subset(BaselineDataset(train_root, transform=val_transform), val_idx)
 
     print(f'train image num: {len(train_dataset)}, valid image num: {len(val_dataset)}')
 
-    test_dataset = CustomImageDataset(test_root, transform=val_transform, is_test=True)
+    test_dataset = BaselineDataset(test_root, transform=val_transform, is_test=True)
     
     return train_dataset, val_dataset, test_dataset, class_names
 

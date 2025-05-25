@@ -30,7 +30,7 @@ import fire
 
 from src.utils.utils import seed_everything, project_path, auto_increment_run_suffix, CFG
 from src.utils.constant import Optimizers, Models, Augmentations
-from src.dataset.HectoDataset import get_datasets
+from src.dataset.BaselineDataset import get_datasets
 from src.model.resnet50 import Resnet50
 from src.train.train import train
 from src.inference.inference import (
@@ -105,7 +105,7 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
 
     # model = model_class(num_classes=len(class_names))
     # model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
-
+    model.to(device)
     model.eval()
     results = []
 
@@ -124,7 +124,7 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
     
     pred = pd.DataFrame(results)
 
-    submission = pd.read_csv(os.path.join(project_path(), 'data/sample_submission.csv', encoding='utf-8-sig'))
+    submission = pd.read_csv(os.path.join(project_path(), 'data/sample_submission.csv'), encoding='utf-8-sig')
 
     class_columns = submission.columns[1:]
     pred = pred[class_columns]

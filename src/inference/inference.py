@@ -15,7 +15,7 @@ from src.model.resnet50 import Resnet50
 from src.utils.utils import model_dir, calculate_hash, read_hash
 from src.utils.utils import CFG
 from src.utils.constant import Augmentations
-from src.dataset.HectoDataset import get_datasets
+from src.dataset.BaselineDataset import get_datasets
 
 from dotenv import load_dotenv
 from src.postprocess.postprocess import write_db
