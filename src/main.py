@@ -55,7 +55,8 @@ def get_latest_run(project_name):
     ]
     
     if not filtered:
-        default_name = default_name or f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
+        default_name = f"{CFG['EXPERIMENT_NAME'].replace('_', '-')}-000"
+        return default_name
     
     return filtered[0].name
     
