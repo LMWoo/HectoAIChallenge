@@ -217,4 +217,3 @@ pyrightconfig.json
 nohup.out
 .env
 *.pth
-/src/experiment*

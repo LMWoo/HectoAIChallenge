@@ -238,6 +238,153 @@ class InvertPolicy(object):
         return self.policies[policy_idx](img)
 
 
+#########################################
+
+class RotateShearXPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.5, "shearX", 8, 0.0, "shearX", 8, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateShearYPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.5, "shearY", 8, 0.0, "shearY", 8, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateTranslateXPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.3, "translateX", 5, 0.0, "translateX", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateTranslateYPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.3, "translateY", 5, 0.0, "translateY", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateColorPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.4, "color", 5, 0.0, "color", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+        
+class RotatePosterizePolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.3, "posterize", 7, 0.0, "posterize", 7, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateSolarizePolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.4, "solarize", 5, 0.0, "solarize", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateContrastPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.2, "contrast", 6, 0.0, "contrast", 6, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateSharpnessPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.3, "sharpness", 9, 0.0, "sharpness", 9, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateBrightnessPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.6, "brightness", 7, 0.0, "brightness", 7, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateAutoContrastPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.5, "autocontrast", 8, 0.0, "autocontrast", 8, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateEqualizePolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.6, "equalize", 5, 0.0, "equalize", 5, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateInvertPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.1, "invert", 3, 0.0, "invert", 3, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+    
+#########################################
+
 class TranslateXYPolicy(object):
     def __init__(self, fillcolor=(128)):
         self.policies = [

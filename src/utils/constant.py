@@ -8,7 +8,13 @@ from src.dataset.policy import (
     IdentityPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ShearXPolicy, 
     ShearYPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ColorPolicy,
     PosterizePolicy, SolarizePolicy, ContrastPolicy, SharpnessPolicy, BrightnessPolicy,
-    AutoContrastPolicy, EqualizePolicy, InvertPolicy, TranslateXYPolicy, TranslateXYROTPolicy
+    AutoContrastPolicy, EqualizePolicy, InvertPolicy, TranslateXYPolicy, TranslateXYROTPolicy,
+
+
+    RotateShearXPolicy, RotateShearYPolicy, RotateTranslateXPolicy, RotateTranslateYPolicy, 
+    RotateColorPolicy, RotatePosterizePolicy, RotateSolarizePolicy, RotateContrastPolicy, 
+    RotateSharpnessPolicy, RotateBrightnessPolicy, RotateAutoContrastPolicy, 
+    RotateEqualizePolicy, RotateInvertPolicy,
 )
 
 class CustomEnum(Enum):
@@ -52,6 +58,23 @@ class Augmentations(CustomEnum):
     AUTO_CONTRAST_POLICY = AutoContrastPolicy
     EQUALIZE_POLICY = EqualizePolicy
     INVERT_POLICY = InvertPolicy
+
+
+
+    ROTATE_SHEAR_X_POLICY = RotateShearXPolicy
+    ROTATE_SHEAR_Y_POLICY = RotateShearYPolicy
+    ROTATE_TRANSLATE_X_POLICY = RotateTranslateXPolicy
+    ROTATE_TRANSLATE_Y_POLICY = RotateTranslateYPolicy
+    ROTATE_COLOR_POLICY = RotateColorPolicy
+    ROTATE_POSTERIZE_POLICY = RotatePosterizePolicy
+    ROTATE_SOLARIZE_POLICY = RotateSolarizePolicy
+    ROTATE_CONTRAST_POLICY = RotateContrastPolicy
+    ROTATE_SHARPNESS_POLICY = RotateSharpnessPolicy
+    ROTATE_BRIGHTNESS_POLICY = RotateBrightnessPolicy
+    ROTATE_AUTO_CONTRAST_POLICY = RotateAutoContrastPolicy
+    ROTATE_EQUALIZE_POLICY = RotateEqualizePolicy
+    ROTATE_INVERT_POLICY = RotateInvertPolicy
+
 
     TRANSLATE_XY_POLICY = TranslateXYPolicy
     TRANSLATE_XY_ROT_POLICY = TranslateXYROTPolicy
