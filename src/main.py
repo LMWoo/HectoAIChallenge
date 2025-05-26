@@ -63,7 +63,7 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, de
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
-    project_name = "classification_test" #  + CFG['EXPERIMENT_NAME'].replace("_", "-")
+    project_name = "classification" #  + CFG['EXPERIMENT_NAME'].replace("_", "-")
     try:
         run_name = get_latest_run(project_name)
     except Exception as e:
@@ -92,7 +92,7 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, de
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
     Transforms.validation(transforms_name)
-
+    
     train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value, Transforms[transforms_name.upper()].value)
     
     train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=True)
