@@ -2,7 +2,7 @@ import torchvision.transforms as transforms
 from src.utils.utils import CFG
 
 class CropPolicyTransforms:
-    def __init__(self, img_size, crop_size=256, augmentation_cls=None):
+    def __init__(self, img_size, crop_size=128, augmentation_cls=None):
         self.img_size = img_size
         self.crop_size = crop_size
         self.augmentation_cls = augmentation_cls
@@ -10,7 +10,7 @@ class CropPolicyTransforms:
     def get_train_transform(self):
         return transforms.Compose([
             transforms.RandomApply([
-            transforms.RandomCrop(self.crop_size, padding=4)
+            transforms.RandomResizedCrop(self.crop_size, scale=(0.2, 0.6))
             ], p=0.5),
             transforms.Resize((self.img_size, self.img_size)),
             self.augmentation_cls() if self.augmentation_cls else transforms.Lambda(lambda x: x),
