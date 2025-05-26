@@ -18,8 +18,6 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, Subset
-import torchvision.models as models
-from torchvision.models import ResNet50_Weights
 import torch.nn.functional as F
 from PIL import Image
 from tqdm import tqdm
@@ -29,7 +27,7 @@ import fire
 
 
 from src.utils.utils import seed_everything, project_path, auto_increment_run_suffix, CFG
-from src.utils.constant import Optimizers, Models, Augmentations
+from src.utils.constant import Optimizers, Models, Augmentations, Transforms
 from src.dataset.baselineDataset import get_datasets
 from src.model.resnet50 import Resnet50
 from src.train.train import train
@@ -61,7 +59,7 @@ def get_latest_run(project_name):
     return filtered[0].name
     
 
-def run_train(model_name, optimizer_name, augmentation_name, device):
+def run_train(model_name, optimizer_name, augmentation_name, transforms_name, device):
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
@@ -84,6 +82,7 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
             "model_name": model_name,
             "optimizer_name": optimizer_name,
             "augmentation_name": augmentation_name,
+            "transforms_name": transforms_name,
             "device": str(device),
             
         }
@@ -92,8 +91,9 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
-
-    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
+    Transforms.validation(transforms_name)
+    
+    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value, Transforms[transforms_name.upper()].value)
     
     train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
@@ -113,12 +113,13 @@ def run_train(model_name, optimizer_name, augmentation_name, device):
     
     train(model, train_loader, val_loader, model_params, criterion, optimizer, device)
 
-def run_test(model_name, optimizer_name, augmentation_name, device):
+def run_test(model_name, optimizer_name, augmentation_name, transforms_name, device):
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
+    Transforms.validation(transforms_name)
 
-    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
+    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value, Transforms[transforms_name.upper()].value)
 
     test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
 
@@ -157,8 +158,12 @@ def run_test(model_name, optimizer_name, augmentation_name, device):
     submission[class_columns] = pred.values
     submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission.csv") , index=False, encoding='utf-8-sig')
 
-def run_inference(model_name, augmentation_name, device, batch_size=64):
-    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
+def run_inference(model_name, augmentation_name, transforms_name, device, batch_size=64):
+    Models.validation(model_name)
+    Augmentations.validation(augmentation_name)
+    Transforms.validation(transforms_name)
+
+    train_dataset, val_dataset, test_dataset, class_names = get_datasets(Augmentations[augmentation_name.upper()].value, Transforms[transforms_name.upper()].value)
 
     checkpoint = load_checkpoint()
 
@@ -172,7 +177,7 @@ def run_inference(model_name, augmentation_name, device, batch_size=64):
     recommend_df = recommend_to_df(class_names.index(result))
     write_db(recommend_df, "mlops", "recommend")
 
-def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name):
+def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name, transforms_name):
     CFG['EXPERIMENT_NAME'] = experiment_name
     CFG['WRONG_DIR'] = os.path.join('./validation_wrong_dir', CFG['EXPERIMENT_NAME'])
     os.makedirs(CFG['WRONG_DIR'], exist_ok=True)
@@ -182,11 +187,11 @@ def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_nam
         
     seed_everything(CFG['SEED'])
     if run_mode == "train":
-        run_train(model_name, optimizer_name, augmentation_name, device)
+        run_train(model_name, optimizer_name, augmentation_name, transforms_name, device)
     elif run_mode == "test":
-        run_test(model_name, optimizer_name, augmentation_name, device)
+        run_test(model_name, optimizer_name, augmentation_name, transforms_name, device)
     elif run_mode == "inference":
-        run_inference(model_name, augmentation_name, device)
+        run_inference(model_name, augmentation_name, transforms_name, device)
 
 if __name__ == '__main__':
     fire.Fire(main)

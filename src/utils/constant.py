@@ -17,6 +17,10 @@ from src.dataset.policy import (
     RotateEqualizePolicy, RotateInvertPolicy,
 )
 
+from src.dataset.transform import (
+    BaselineTransforms, PolicyTransforms, CropPolicyTransforms
+)
+
 class CustomEnum(Enum):
     @classmethod
     def names(cls):
@@ -41,6 +45,11 @@ class Optimizers(CustomEnum):
     SPARSEADAM = optim.SparseAdam
     SGD = optim.SGD
     RMSPROP = optim.RMSprop
+
+class Transforms(CustomEnum):
+    BASELINE_TRANSFORMS = BaselineTransforms
+    POLICY_TRANSFORMS = PolicyTransforms
+    CROP_POLICY_TRANSFORMS = CropPolicyTransforms
 
 class Augmentations(CustomEnum):
     IDENTITY_POLICY = IdentityPolicy
