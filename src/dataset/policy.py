@@ -382,7 +382,32 @@ class RotateInvertPolicy(object):
     def __call__(self, img):
         policy_idx = random.randint(0, len(self.policies) - 1)
         return self.policies[policy_idx](img)
+
+#########################################
+
+class ShearXShearYPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.5, "shearX", 8, 0.0, "shearX", 8, fillcolor),
+            SubPolicy(0.5, "shearY", 8, 0.0, "shearY", 8, fillcolor),
+        ]
     
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
+class RotateShearXShearYPolicy(object):
+    def __init__(self, fillcolor=(128)):
+        self.policies = [
+            SubPolicy(0.7, "rotate", 2, 0.0, "rotate", 2, fillcolor),
+            SubPolicy(0.5, "shearX", 8, 0.0, "shearX", 8, fillcolor),
+            SubPolicy(0.5, "shearY", 8, 0.0, "shearY", 8, fillcolor),
+        ]
+    
+    def __call__(self, img):
+        policy_idx = random.randint(0, len(self.policies) - 1)
+        return self.policies[policy_idx](img)
+
 #########################################
 
 class TranslateXYPolicy(object):

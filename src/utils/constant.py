@@ -15,6 +15,8 @@ from src.dataset.policy import (
     RotateColorPolicy, RotatePosterizePolicy, RotateSolarizePolicy, RotateContrastPolicy, 
     RotateSharpnessPolicy, RotateBrightnessPolicy, RotateAutoContrastPolicy, 
     RotateEqualizePolicy, RotateInvertPolicy,
+
+    ShearXShearYPolicy, RotateShearXShearYPolicy
 )
 
 from src.dataset.transform import (
@@ -83,7 +85,9 @@ class Augmentations(CustomEnum):
     ROTATE_AUTO_CONTRAST_POLICY = RotateAutoContrastPolicy
     ROTATE_EQUALIZE_POLICY = RotateEqualizePolicy
     ROTATE_INVERT_POLICY = RotateInvertPolicy
-
+    
+    SHEAR_X_SHEAR_Y_POLICY = ShearXShearYPolicy
+    ROTATE_SHEAR_X_SHEAR_Y_POLICY = RotateShearXShearYPolicy
 
     TRANSLATE_XY_POLICY = TranslateXYPolicy
     TRANSLATE_XY_ROT_POLICY = TranslateXYROTPolicy
