@@ -1,0 +1,2 @@
+python src/main.py --run_mode train --experiment_name rotate_shear_x_random_crops --model_name resnet_50 --optimizer_name adam --augmentation_name identity_policy --transforms_name rotate_shear_x_random_crops_transforms
+python src/main.py --run_mode test --experiment_name rotate_shear_x_random_crops --model_name resnet_50 --optimizer_name adam --augmentation_name identity_policy --transforms_name rotate_shear_x_random_crops_transforms

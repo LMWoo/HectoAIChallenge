@@ -16,11 +16,11 @@ from src.dataset.policy import (
     RotateSharpnessPolicy, RotateBrightnessPolicy, RotateAutoContrastPolicy, 
     RotateEqualizePolicy, RotateInvertPolicy,
 
-    ShearXShearYPolicy, RotateShearXShearYPolicy
+    ShearXShearYPolicy, RotateShearXShearYPolicy, 
 )
 
 from src.dataset.transform import (
-    BaselineTransforms, PolicyTransforms, CropPolicyTransforms
+    BaselineTransforms, PolicyTransforms, CropPolicyTransforms, RotateShearRandomCropsTransforms
 )
 
 class CustomEnum(Enum):
@@ -52,6 +52,7 @@ class Transforms(CustomEnum):
     BASELINE_TRANSFORMS = BaselineTransforms
     POLICY_TRANSFORMS = PolicyTransforms
     CROP_POLICY_TRANSFORMS = CropPolicyTransforms
+    ROTATE_SHEAR_X_RANDOM_CROPS_TRANSFORMS = RotateShearRandomCropsTransforms
 
 class Augmentations(CustomEnum):
     IDENTITY_POLICY = IdentityPolicy
