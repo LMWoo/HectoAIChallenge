@@ -11,6 +11,7 @@ COPY requirements.txt /workspace
 
 RUN pip install -r /workspace/requirements.txt
 
+COPY data /workspace/data
 COPY src /workspace/src
 COPY start_api_server.sh /workspace
 

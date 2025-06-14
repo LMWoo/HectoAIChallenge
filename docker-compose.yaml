@@ -1,0 +1,21 @@
+name: hecto
+
+x-common: &common
+  env_file:
+    - .env
+  image: hector-core:latest
+  runtime: nvidia
+  environment:
+    - NVIDIA_VISIBLE_DEVICES=all
+
+services:
+  train-inference-tester:
+    <<: *common
+    container_name: hecto-exp-container
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    command: tail -f /dev/null
+    build:
+      context: .
+      dockerfile: Dockerfile

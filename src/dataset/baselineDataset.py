@@ -80,11 +80,11 @@ class DeleteMisLabelledDataset(BaselineDataset):
 # def split_dataset():
 #   pass
 
-def get_datasets(augmentation_cls, transforms_cls):
+def get_datasets(augmentation_cls, transforms_cls, datasets_cls):
     train_root = os.path.join(project_path(), 'data/train')
     test_root = os.path.join(project_path(), 'data/test')
 
-    full_dataset = BaselineDataset(train_root, transform=None)
+    full_dataset = datasets_cls(train_root, transform=None)
     print(f'Total image num: {len(full_dataset)}')
 
     targets = [label for _, label in full_dataset.samples]
@@ -98,12 +98,12 @@ def get_datasets(augmentation_cls, transforms_cls):
     transforms = transforms_cls(CFG['IMG_SIZE'], augmentation_cls=augmentation_cls)
     train_transform, val_transform = transforms.get_transforms()
     # Subset + transform
-    train_dataset = Subset(BaselineDataset(train_root, transform=train_transform), train_idx)
-    val_dataset = Subset(BaselineDataset(train_root, transform=val_transform), val_idx)
+    train_dataset = Subset(datasets_cls(train_root, transform=train_transform), train_idx)
+    val_dataset = Subset(datasets_cls(train_root, transform=val_transform), val_idx)
 
     print(f'train image num: {len(train_dataset)}, valid image num: {len(val_dataset)}')
 
-    test_dataset = BaselineDataset(test_root, transform=val_transform, is_test=True)
+    test_dataset = datasets_cls(test_root, transform=val_transform, is_test=True)
     
     return train_dataset, val_dataset, test_dataset, class_names
 
