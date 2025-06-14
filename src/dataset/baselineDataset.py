@@ -48,7 +48,32 @@ class BaselineDataset(Dataset):
             if self.transform:
                 image = self.transform(image)
         return image, label, img_path
+    
+class DeleteMisLabelledDataset(BaselineDataset):
+    def __init__(self, root_dir, transform=None, is_test=False):
+        super().__init__(root_dir, transform, is_test)
+        self.mislabelled_images = [
+            "디_올뉴그랜저_2023_2025_0039.jpg",
+            "박스터_718_2017_2024_0051.jpg",
+            "아반떼_N_2022_2023_0035.jpg",
+            "아반떼_N_2022_2023_0064.jpg",
+            "아베오_2012_2016_0052.jpg",
+            "GLE_클래스_W167_2019_2024_0068.jpg",
+            "SM7_뉴아트_2008_2011_0053.jpg"
+        ]
 
+        if not self.is_test:
+            self.samples = [
+                sample for sample in self.samples
+                if os.path.basename(sample[0]) not in self.mislabelled_images
+            ]
+
+    def __len__(self):
+        return super().__len__()
+    
+    def __getitem__(self, idx):
+        return super().__getitem__(idx)
+    
 # def read_dataset():
 #   pass
     

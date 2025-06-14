@@ -23,6 +23,10 @@ from src.dataset.transform import (
     BaselineTransforms, PolicyTransforms, CropPolicyTransforms, RotateShearRandomCropsTransforms, CropPolicyColorJitterTransforms
 )
 
+from src.dataset.baselineDataset import (
+    BaselineDataset, DeleteMisLabelledDataset
+)
+
 class CustomEnum(Enum):
     @classmethod
     def names(cls):
@@ -39,6 +43,10 @@ class CustomEnum(Enum):
 
 class Models(CustomEnum):
     RESNET_50 = Resnet50
+
+class Datasets(CustomEnum):
+    BASELINE_DATASET = BaselineDataset
+    DELETE_MISLABELLED_DATASET = DeleteMisLabelledDataset
 
 class Optimizers(CustomEnum):
     ADAM = optim.Adam
