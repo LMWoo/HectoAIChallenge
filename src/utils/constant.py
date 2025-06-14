@@ -3,6 +3,8 @@ from enum import Enum
 import torch.optim as optim
 
 from src.model.resnet50 import Resnet50
+from src.model.resnet50_timm import Resnet50_Timm
+from src.model.convnext_timm import ConvNext_Timm
 
 from src.dataset.policy import (
     IdentityPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ShearXPolicy, 
@@ -43,6 +45,8 @@ class CustomEnum(Enum):
 
 class Models(CustomEnum):
     RESNET_50 = Resnet50
+    RESNET_50_TIMM = Resnet50_Timm
+    CONVNEXT_TIMM = ConvNext_Timm
 
 class Datasets(CustomEnum):
     BASELINE_DATASET = BaselineDataset
