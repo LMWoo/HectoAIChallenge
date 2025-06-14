@@ -23,6 +23,7 @@ class BaselineDataset(Dataset):
         else:
             self.classes = sorted(os.listdir(root_dir))
             self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
+            self.idx_to_class = {i: cls_name for cls_name, i in self.class_to_idx.items()}
 
             for cls_name in self.classes:
                 cls_folder = os.path.join(root_dir, cls_name)

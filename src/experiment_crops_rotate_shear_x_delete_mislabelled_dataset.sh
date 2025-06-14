@@ -1,0 +1,2 @@
+python src/main.py --run_mode train --experiment_name crops_rotate_shear_x_policy_delete_mislabeled_dataset --model_name resnet_50 --optimizer_name adam --augmentation_name rotate_shear_x_policy --transforms_name crop_policy_transforms --datasets_name DELETE_MISLABELLED_DATASET
+python src/main.py --run_mode test  --experiment_name crops_rotate_shear_x_policy_delete_mislabeled_dataset --model_name resnet_50 --optimizer_name adam --augmentation_name rotate_shear_x_policy --transforms_name crop_policy_transforms --datasets_name DELETE_MISLABELLED_DATASET
