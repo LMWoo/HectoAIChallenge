@@ -121,6 +121,8 @@ def validation_one_epoch(model, val_loader, model_params, criterion, device, epo
 
 def train(model, train_loader, val_loader, model_params, criterion, optimizer, device):
     best_logloss = float('inf')
+    patience = 10
+    trigger_times = 0
 
     for epoch in range(CFG['EPOCHS']):
         avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch)
@@ -132,6 +134,13 @@ def train(model, train_loader, val_loader, model_params, criterion, optimizer, d
         
         print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
 
+
+            
         if val_logloss < best_logloss:
             best_logloss = val_logloss
             save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params)
+            trigger_times = 0
+        else:
+            trigger_times += 1
+            if trigger_times >= patience:
+                return
