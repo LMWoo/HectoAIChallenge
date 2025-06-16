@@ -54,6 +54,7 @@ class Datasets(CustomEnum):
 
 class Optimizers(CustomEnum):
     ADAM = optim.Adam
+    ADAMW = optim.AdamW
     RADAM = optim.RAdam
     NADAM = optim.NAdam
     SPARSEADAM = optim.SparseAdam

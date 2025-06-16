@@ -58,7 +58,7 @@ def save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_dat
     plt.tight_layout()
     plt.savefig(os.path.join(CFG['WRONG_DIR'], f"best_epoch_{epoch + 1}_confusion_matrix.png"))
 
-def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
+def train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device, epoch):
     model.train()
     train_loss = 0.0
     for images, labels, img_paths in tqdm(train_loader, desc=f"[Epoch {epoch+1}/{CFG['EPOCHS']}] Training"):
@@ -68,6 +68,8 @@ def train_one_epoch(model, train_loader, criterion, optimizer, device, epoch):
         loss = criterion(outputs, labels)
         loss.backward()
         optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
         train_loss += loss.item()
 
     avg_train_loss = train_loss / len(train_loader)
@@ -119,18 +121,22 @@ def validation_one_epoch(model, val_loader, model_params, criterion, device, epo
     
     return avg_val_loss, val_accuracy, val_logloss, save_data_params
 
-def train(model, train_loader, val_loader, model_params, criterion, optimizer, device):
+def train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, device):
     best_logloss = float('inf')
     patience = 10
     trigger_times = 0
 
     for epoch in range(CFG['EPOCHS']):
-        avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, device, epoch)
+        avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device, epoch)
         avg_val_loss, val_accuracy, val_logloss, save_data_params = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
         wandb.log({"Loss/Train": avg_train_loss})
         wandb.log({"Loss/Valid": avg_val_loss})
         wandb.log({"LogLoss/Valid": val_logloss})
         wandb.log({"Accuracy/Valid": val_accuracy})
+        if scheduler is not None:
+            wandb.log({"LearningRate/Train": scheduler.get_last_lr()[0]})
+        else:
+            wandb.log({"LearningRate/Train": CFG["LEARNING_RATE"]})
         
         print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
 

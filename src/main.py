@@ -19,6 +19,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, Subset
 import torch.nn.functional as F
+from transformers import get_cosine_schedule_with_warmup
 from PIL import Image
 from tqdm import tqdm
 import pandas as pd
@@ -115,9 +116,21 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
     criterion = nn.CrossEntropyLoss()
 
     optimizer_class = Optimizers[optimizer_name.upper()].value
-    optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'])
-    
-    train(model, train_loader, val_loader, model_params, criterion, optimizer, device)
+    if optimizer_name.upper() == "ADAMW":
+        optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'], weight_decay=0.05)
+
+        total_steps = len(train_loader) * CFG['EPOCHS']
+        warmup_steps = len(train_loader) * 3
+        scheduler = get_cosine_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=warmup_steps,
+            num_training_steps=total_steps
+        )
+    else:
+        optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'])
+        scheduler = None
+
+    train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, device)
 
 def run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, device):
     Models.validation(model_name)
