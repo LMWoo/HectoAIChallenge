@@ -28,3 +28,7 @@ class ConvNext_Timm(nn.Module):
         x = self.backbone(x)
         # x = self.head(x)
         return x
+    
+    def unfreeze(self):
+        for name, param in self.named_parameters():
+            param.requires_grad = True

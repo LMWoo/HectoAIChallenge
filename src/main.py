@@ -60,7 +60,7 @@ def get_latest_run(project_name):
     return filtered[0].name
     
 
-def run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, device):
+def run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
@@ -102,8 +102,8 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
 
     train_dataset, val_dataset, test_dataset, class_names = get_datasets(augmentation_cls, transform_cls, dataset_cls)
 
-    train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=16, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=8, shuffle=False)
 
     model_class = Models[model_name.upper()].value
     
@@ -117,6 +117,7 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
 
     optimizer_class = Optimizers[optimizer_name.upper()].value
     if optimizer_name.upper() == "ADAMW":
+        print('adamw + cosine schedule')
         optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'], weight_decay=0.05)
 
         total_steps = len(train_loader) * CFG['EPOCHS']
@@ -130,9 +131,9 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
         optimizer = optimizer_class(model.parameters(), lr=CFG['LEARNING_RATE'])
         scheduler = None
 
-    train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, device)
+    train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device)
 
-def run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, device):
+def run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
@@ -145,7 +146,64 @@ def run_test(model_name, optimizer_name, augmentation_name, transforms_name, dat
 
     train_dataset, val_dataset, test_dataset, class_names = get_datasets(augmentation_cls, transform_cls, dataset_cls)
 
-    test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], shuffle=False)
+    test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=8, shuffle=False)
+
+    # model_class = Models[model_name.upper()].value
+
+    checkpoint = load_checkpoint()
+
+    model, criterion = init_model(checkpoint, model_name)
+
+    # model = model_class(num_classes=len(class_names))
+    # model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
+    model.to(device)
+    model.eval()
+    results = []
+
+    with torch.no_grad():
+        for images in test_loader:
+            images = images.to(device)
+
+            # TTA: original
+            outputs_orig = model(images)
+            probs_orig = F.softmax(outputs_orig, dim=1)
+
+            # TTA: horizontal flip
+            images_flip = torch.flip(images, dims=[3])
+            outputs_flip = model(images_flip)
+            probs_flip = F.softmax(outputs_flip, dim=1)
+
+            # Average
+            probs_avg = (probs_orig + probs_flip) * 0.5
+
+            # Collect
+            for prob in probs_avg.cpu():
+                results.append({class_names[i]: prob[i].item() for i in range(len(class_names))})
+    
+    pred = pd.DataFrame(results)
+
+    submission = pd.read_csv(os.path.join(project_path(), 'data/sample_submission.csv'), encoding='utf-8-sig')
+
+    class_columns = submission.columns[1:]
+    pred = pred[class_columns]
+
+    submission[class_columns] = pred.values
+    submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission_tta.csv") , index=False, encoding='utf-8-sig')
+
+def run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
+    Models.validation(model_name)
+    Optimizers.validation(optimizer_name)
+    Augmentations.validation(augmentation_name)
+    Transforms.validation(transforms_name)
+    Datasets.validation(datasets_name)
+
+    augmentation_cls = Augmentations[augmentation_name.upper()].value
+    transform_cls = Transforms[transforms_name.upper()].value
+    dataset_cls = Datasets[datasets_name.upper()].value
+
+    train_dataset, val_dataset, test_dataset, class_names = get_datasets(augmentation_cls, transform_cls, dataset_cls)
+
+    test_loader = DataLoader(test_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=8, shuffle=False)
 
     # model_class = Models[model_name.upper()].value
 
@@ -201,7 +259,7 @@ def run_inference(model_name, augmentation_name, transforms_name, device, batch_
     recommend_df = recommend_to_df(class_names.index(result))
     write_db(recommend_df, "mlops", "recommend")
 
-def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name, transforms_name, datasets_name):
+def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs):
     CFG['EXPERIMENT_NAME'] = experiment_name
     CFG['WRONG_DIR'] = os.path.join('./validation_wrong_dir', CFG['EXPERIMENT_NAME'])
     os.makedirs(CFG['WRONG_DIR'], exist_ok=True)
@@ -211,9 +269,10 @@ def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_nam
         
     seed_everything(CFG['SEED'])
     if run_mode == "train":
-        run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, device)
+        run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
     elif run_mode == "test":
-        run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, device)
+        run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
+        run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
     elif run_mode == "inference":
         run_inference(model_name, augmentation_name, transforms_name, device)
 

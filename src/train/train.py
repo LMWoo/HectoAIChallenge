@@ -121,12 +121,15 @@ def validation_one_epoch(model, val_loader, model_params, criterion, device, epo
     
     return avg_val_loss, val_accuracy, val_logloss, save_data_params
 
-def train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, device):
+def train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device):
     best_logloss = float('inf')
     patience = 10
     trigger_times = 0
 
     for epoch in range(CFG['EPOCHS']):
+        if epoch == freeze_epochs:
+            print(f"Epoch {epoch+1}: Start Feature Extractor unfreeze and full-model fine-tuning")
+            model.unfreeze()
         avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device, epoch)
         avg_val_loss, val_accuracy, val_logloss, save_data_params = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
         wandb.log({"Loss/Train": avg_train_loss})
