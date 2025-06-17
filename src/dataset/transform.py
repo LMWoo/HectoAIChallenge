@@ -1,5 +1,43 @@
+import torch
 import torchvision.transforms as transforms
+from torchvision.transforms import v2
 from src.utils.utils import CFG
+
+class BestTransforms:
+    def __init__(self, img_size, crop_size=128, augmentation_cls=None):
+        self.img_size = img_size
+        self.crop_size = crop_size
+        self.augmentation_cls = augmentation_cls
+
+    def get_train_transform(self):
+        return v2.Compose([
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.RandomResizedCrop((CFG['IMG_SIZE'], CFG['IMG_SIZE']), scale=(0.8, 1.0), antialias=True),
+            v2.RandomHorizontalFlip(),
+            v2.RandomVerticalFlip(p=0.3),
+            v2.RandomRotation(15),
+            v2.TrivialAugmentWide(interpolation=v2.InterpolationMode.BILINEAR),
+            v2.RandAugment(),
+            v2.ColorJitter(0.2, 0.2, 0.2),
+            v2.RandomAutocontrast(),
+            v2.GaussianBlur(kernel_size=(3, 3), sigma=(0.1, 2.0)),
+            v2.RandomErasing(p=0.25),
+            v2.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]),
+        ])
+
+    def get_val_transforms(self):
+        return v2.Compose([
+            v2.ToImage(),
+            v2.ToDtype(torch.float32, scale=True),
+            v2.Resize((CFG['IMG_SIZE'], CFG['IMG_SIZE']), antialias=True),
+            v2.Normalize(mean=[0.485, 0.456, 0.406],
+                        std=[0.229, 0.224, 0.225]),
+        ])
+    
+    def get_transforms(self):
+        return self.get_train_transform(), self.get_val_transforms()
 
 class CropPolicyColorJitterTransforms:
     def __init__(self, img_size, crop_size=128, augmentation_cls=None):

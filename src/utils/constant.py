@@ -22,7 +22,7 @@ from src.dataset.policy import (
 )
 
 from src.dataset.transform import (
-    BaselineTransforms, PolicyTransforms, CropPolicyTransforms, RotateShearRandomCropsTransforms, CropPolicyColorJitterTransforms
+    BestTransforms, BaselineTransforms, PolicyTransforms, CropPolicyTransforms, RotateShearRandomCropsTransforms, CropPolicyColorJitterTransforms
 )
 
 from src.dataset.baselineDataset import (
@@ -62,6 +62,7 @@ class Optimizers(CustomEnum):
     RMSPROP = optim.RMSprop
 
 class Transforms(CustomEnum):
+    BEST_TRANSFORMS = BestTransforms
     BASELINE_TRANSFORMS = BaselineTransforms
     POLICY_TRANSFORMS = PolicyTransforms
     CROP_POLICY_TRANSFORMS = CropPolicyTransforms
