@@ -85,8 +85,9 @@ def run_train(model_name, loss_name, optimizer_name, augmentation_name, transfor
             "augmentation_name": augmentation_name,
             "transforms_name": transforms_name,
             "datasets_name": datasets_name,
+            "loss_name": loss_name,
+            "freeze_epochs": freeze_epochs,
             "device": str(device),
-            
         }
     )
 

@@ -4,10 +4,12 @@ import datetime
 
 import torch
 import torch.nn.functional as F
+import numpy as np
 import wandb
+import pandas as pd
 from tqdm import tqdm
 from sklearn.metrics import log_loss
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
@@ -19,6 +21,36 @@ plt.rcParams.update({'font.size': 10, 'font.family': 'NanumBarunGothic'}) # Ìè∞Ì
 plt.rc('font', family='NanumBarunGothic')
 
 from src.utils.utils import CFG, model_dir, save_hash
+
+def top_n_confusion_matrix(epoch, top_n, cm, labels):
+    cm = np.array(cm)
+    cm_offdiag = cm.copy()
+    np.fill_diagonal(cm_offdiag, 0)
+
+    nonzero_flat_indices = np.flatnonzero(cm_offdiag)
+    sorted_indices = nonzero_flat_indices[np.argsort(cm_offdiag.ravel()[nonzero_flat_indices])[::-1]]
+    top_indices = sorted_indices[:top_n]
+    top_pairs = np.array(np.unravel_index(top_indices, cm.shape)).T
+
+    rows = [i for i, _ in top_pairs]
+    cols = [j for _, j in top_pairs]
+    unique_idxs = sorted(set(rows + cols))
+
+    sub_cm = cm[np.ix_(unique_idxs, unique_idxs)]
+    sub_labels = [labels[i] for i in unique_idxs]
+
+    fig = plt.figure(figsize=(max(8, len(unique_idxs) * 0.7), max(6, len(unique_idxs) * 0.6)))
+    sns.heatmap(sub_cm, annot=True, fmt='g', cmap='Blues',
+                xticklabels=sub_labels, yticklabels=sub_labels,
+                cbar=True, square=True, linewidths=0.5, linecolor='gray')
+
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+    plt.title(f"Top-{top_n} Confused Classes (Epoch {epoch + 1})")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    return fig
+
 
 def save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params):
     save_dir = model_dir(CFG['EXPERIMENT_NAME'])
@@ -50,13 +82,27 @@ def save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_dat
     idx_to_class = save_data_params["idx_to_class"]
     labels = [idx_to_class[i] for i in range(len(idx_to_class))]
 
+    top_n = 30
+    top_n_fig = top_n_confusion_matrix(epoch, 30, cm, labels)
+    top_n_cm_path = os.path.join(CFG['WRONG_DIR'], f"best_epoch_{epoch + 1}_top_n_{top_n}_confusion_matrix.png")
+    top_n_fig.savefig(top_n_cm_path)
+    plt.close(top_n_fig)
+
     plt.figure(figsize=(50, 50))
     sns.heatmap(cm, annot=False, cmap='Blues', fmt='g', xticklabels=labels, yticklabels=labels)
     plt.title(f"Confusion Matrix (Epoch {epoch + 1})")
     plt.xlabel("Predicted")
     plt.ylabel("Actual")
     plt.tight_layout()
-    plt.savefig(os.path.join(CFG['WRONG_DIR'], f"best_epoch_{epoch + 1}_confusion_matrix.png"))
+    full_cm_path = os.path.join(CFG['WRONG_DIR'], f"best_epoch_{epoch + 1}_confusion_matrix.png")
+    plt.savefig(full_cm_path)
+    plt.close()
+
+    wandb.log({
+        "ConfusionMatrix/Full": wandb.Image(full_cm_path),
+        "ConfusionMatrix/Top_n/image": wandb.Image(top_n_cm_path),
+        "ConfusionMatrix/Top_n/top_n": top_n,
+    })
 
 def train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device, epoch):
     model.train()
@@ -113,12 +159,36 @@ def validation_one_epoch(model, val_loader, model_params, criterion, device, epo
 
     cm = confusion_matrix(all_labels, all_preds)
 
+    idx_to_class = val_loader.dataset.dataset.idx_to_class
+    class_names = val_loader.dataset.dataset.classes
+
     save_data_params = {
         "wrong_imgs" : wrong_imgs,
         "confusion_matrix": cm,
-        "idx_to_class": val_loader.dataset.dataset.idx_to_class
+        "idx_to_class": idx_to_class
     }
-    
+
+
+    report_dict = classification_report(all_labels, all_preds, labels=list(range(len(idx_to_class))), output_dict=True, zero_division=0)
+    report_df = pd.DataFrame(report_dict).T
+
+    precision_scores = [float(report_df.loc[str(i), "precision"]) for i in range(len(idx_to_class))]
+    recall_scores = [float(report_df.loc[str(i), "recall"]) for i in range(len(idx_to_class))]
+    f1_scores = [float(report_df.loc[str(i), "f1-score"]) for i in range(len(idx_to_class))]
+
+    precision_table = wandb.Table(data=[[cls, v] for cls, v in zip(class_names, precision_scores)],
+                                columns=["label", "value"])
+    recall_table = wandb.Table(data=[[cls, v] for cls, v in zip(class_names, recall_scores)],
+                            columns=["label", "value"])
+    f1_table = wandb.Table(data=[[cls, v] for cls, v in zip(class_names, f1_scores)],
+                        columns=["label", "value"])
+
+    wandb.log({
+        "PerClass/Precision/Valid": wandb.plot.bar(precision_table, "label", "value", title="Per-class Precision"),
+        "PerClass/Recall/Valid": wandb.plot.bar(recall_table, "label", "value", title="Per-class Recall"),
+        "PerClass/F1-Score/Valid": wandb.plot.bar(f1_table, "label", "value", title="Per-class F1 Score")
+    }, step=epoch)
+
     return avg_val_loss, val_accuracy, val_logloss, save_data_params
 
 def train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device):
@@ -142,8 +212,6 @@ def train(model, train_loader, val_loader, model_params, criterion, optimizer, s
             wandb.log({"LearningRate/Train": CFG["LEARNING_RATE"]})
         
         print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
-
-
             
         if val_logloss < best_logloss:
             best_logloss = val_logloss
