@@ -28,7 +28,7 @@ import fire
 
 
 from src.utils.utils import seed_everything, project_path, auto_increment_run_suffix, CFG
-from src.utils.constant import Optimizers, Models, Augmentations, Transforms, Datasets
+from src.utils.constant import Optimizers, Models, Losses, Augmentations, Transforms, Datasets
 from src.dataset.baselineDataset import get_datasets
 from src.model.resnet50 import Resnet50
 from src.train.train import train
@@ -60,7 +60,7 @@ def get_latest_run(project_name):
     return filtered[0].name
     
 
-def run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
+def run_train(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     api_key  =os.environ["WANDB_API_KEY"]
     wandb.login(key=api_key)
 
@@ -95,7 +95,8 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
     Augmentations.validation(augmentation_name)
     Transforms.validation(transforms_name)
     Datasets.validation(datasets_name)
-    
+    Losses.validation(loss_name)
+
     augmentation_cls = Augmentations[augmentation_name.upper()].value
     transform_cls = Transforms[transforms_name.upper()].value
     dataset_cls = Datasets[datasets_name.upper()].value
@@ -113,7 +114,25 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
 
     model = model_class(**model_params).to(device)
 
-    criterion = nn.CrossEntropyLoss()
+    try:
+        samples = train_loader.dataset.dataset.samples
+    except:
+        samples = train_loader.dataset.samples
+    labels = [label for _, label in samples]
+    cls_counts = np.bincount(labels)
+    total_count = sum(cls_counts)
+
+    loss_params = { 
+        "alpha": torch.tensor(total_count / (len(cls_counts) * cls_counts)).to(device), 
+        "gamma" : 2.0, 
+        "reduction": "mean" 
+    }
+
+    loss_class = Losses[loss_name.upper()].value
+    if loss_name.upper() == "FOCAL_LOSS":
+        criterion = loss_class(**loss_params).to(device)
+    else:
+        criterion = loss_class().to(device)
 
     optimizer_class = Optimizers[optimizer_name.upper()].value
     if optimizer_name.upper() == "ADAMW":
@@ -133,12 +152,13 @@ def run_train(model_name, optimizer_name, augmentation_name, transforms_name, da
 
     train(model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device)
 
-def run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
+def run_test_tta(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
     Transforms.validation(transforms_name)
     Datasets.validation(datasets_name)
+    Losses.validation(loss_name)
 
     augmentation_cls = Augmentations[augmentation_name.upper()].value
     transform_cls = Transforms[transforms_name.upper()].value
@@ -152,7 +172,7 @@ def run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name,
 
     checkpoint = load_checkpoint()
 
-    model, criterion = init_model(checkpoint, model_name)
+    model = init_model(checkpoint, model_name)
 
     # model = model_class(num_classes=len(class_names))
     # model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
@@ -190,7 +210,7 @@ def run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name,
     submission[class_columns] = pred.values
     submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission_tta.csv") , index=False, encoding='utf-8-sig')
 
-def run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
+def run_test(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     Models.validation(model_name)
     Optimizers.validation(optimizer_name)
     Augmentations.validation(augmentation_name)
@@ -209,7 +229,7 @@ def run_test(model_name, optimizer_name, augmentation_name, transforms_name, dat
 
     checkpoint = load_checkpoint()
 
-    model, criterion = init_model(checkpoint, model_name)
+    model = init_model(checkpoint, model_name)
 
     # model = model_class(num_classes=len(class_names))
     # model.load_state_dict(torch.load(f"best_model_{CFG['EXPERIMENT_NAME']}.pth", map_location=device))
@@ -240,7 +260,7 @@ def run_test(model_name, optimizer_name, augmentation_name, transforms_name, dat
     submission[class_columns] = pred.values
     submission.to_csv(os.path.join(project_path(), f"data/{CFG['EXPERIMENT_NAME']}_submission.csv") , index=False, encoding='utf-8-sig')
 
-def run_inference(model_name, augmentation_name, transforms_name, device, batch_size=64):
+def run_inference(model_name, loss_name, augmentation_name, transforms_name, device, batch_size=64):
     Models.validation(model_name)
     Augmentations.validation(augmentation_name)
     Transforms.validation(transforms_name)
@@ -249,17 +269,17 @@ def run_inference(model_name, augmentation_name, transforms_name, device, batch_
 
     checkpoint = load_checkpoint()
 
-    model, criterion = init_model(checkpoint, model_name)
+    model = init_model(checkpoint, model_name)
     
     image = torch.randn((1, 3, 224, 224))
     
-    result = inference(model, image, criterion, device, augmentation_name)
+    result = inference(model, image, device, augmentation_name)
     print(result, class_names.index(result))
     
     recommend_df = recommend_to_df(class_names.index(result))
     write_db(recommend_df, "mlops", "recommend")
 
-def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs):
+def main(run_mode, experiment_name, model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs):
     CFG['EXPERIMENT_NAME'] = experiment_name
     CFG['WRONG_DIR'] = os.path.join('./validation_wrong_dir', CFG['EXPERIMENT_NAME'])
     os.makedirs(CFG['WRONG_DIR'], exist_ok=True)
@@ -269,12 +289,12 @@ def main(run_mode, experiment_name, model_name, optimizer_name, augmentation_nam
         
     seed_everything(CFG['SEED'])
     if run_mode == "train":
-        run_train(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
+        run_train(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
     elif run_mode == "test":
-        run_test(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
-        run_test_tta(model_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
+        run_test(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
+        run_test_tta(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device)
     elif run_mode == "inference":
-        run_inference(model_name, augmentation_name, transforms_name, device)
+        run_inference(model_name, loss_name, augmentation_name, transforms_name, device)
 
 if __name__ == '__main__':
     fire.Fire(main)

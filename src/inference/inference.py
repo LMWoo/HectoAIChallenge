@@ -31,8 +31,7 @@ def init_model(checkpoint, model_name):
     model_class = Models[model_name.upper()].value
     model = model_class(**checkpoint["model_params"])
     model.load_state_dict(checkpoint["model_state_dict"])
-    criterion = nn.CrossEntropyLoss()
-    return model, criterion
+    return model
 
 def model_validation(model_path):
     original_hash = read_hash(model_path)
@@ -53,7 +52,7 @@ def load_checkpoint():
     else:
         raise FileExistsError("Not found or invalid model file")
 
-def inference(model, image, criterion, device, augmentation_name):
+def inference(model, image, device, augmentation_name):
     Augmentations.validation(augmentation_name)
 
     _, _, _, class_names = get_datasets(Augmentations[augmentation_name.upper()].value)
