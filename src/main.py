@@ -104,7 +104,7 @@ def run_train(model_name, loss_name, optimizer_name, augmentation_name, transfor
 
     train_dataset, val_dataset, test_dataset, class_names = get_datasets(augmentation_cls, transform_cls, dataset_cls)
 
-    train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=16, shuffle=True)
+    train_loader = DataLoader(train_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=16, shuffle=True, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=CFG['BATCH_SIZE'], num_workers=8, shuffle=False)
 
     model_class = Models[model_name.upper()].value

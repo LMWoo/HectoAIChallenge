@@ -8,6 +8,7 @@ from src.model.resnet50_timm import Resnet50_Timm
 from src.model.convnext_timm import ConvNext_Timm
 
 from src.losses.focalloss import FocalLoss
+from src.losses.softtarget_focalloss import SoftTargetFocalLoss
 
 from src.dataset.policy import (
     IdentityPolicy, TranslateXPolicy, TranslateYPolicy, RotatePolicy, ShearXPolicy, 
@@ -54,6 +55,7 @@ class Models(CustomEnum):
 class Losses(CustomEnum):
     CROSS_ENTROPY_LOSS = nn.CrossEntropyLoss
     FOCAL_LOSS = FocalLoss
+    SOFT_TARGET_FOCAL_LOSS = SoftTargetFocalLoss
 
 class Datasets(CustomEnum):
     BASELINE_DATASET = BaselineDataset

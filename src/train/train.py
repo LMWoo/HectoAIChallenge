@@ -4,6 +4,7 @@ import datetime
 import copy
 
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 import wandb
@@ -22,6 +23,7 @@ plt.rcParams.update({'font.size': 10, 'font.family': 'NanumBarunGothic'}) # Ìè∞Ì
 plt.rc('font', family='NanumBarunGothic')
 
 from src.utils.utils import CFG, model_dir, save_hash
+from timm.data.mixup import Mixup
 
 class EMA:
     def __init__(self, model, decay=0.999):
@@ -140,6 +142,29 @@ def train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device
     avg_train_loss = train_loss / len(train_loader)
     return avg_train_loss
 
+def train_one_epoch_with_ema_mixup(model, ema, mixup_fn, train_loader, criterion, optimizer, scheduler, device, update_epoch, epoch):
+    model.train()
+    train_loss = 0.0
+    for images, labels, img_paths in tqdm(train_loader, desc=f"[Epoch {epoch+1}/{CFG['EPOCHS']}] Training"):
+        images, labels = images.to(device), labels.to(device)
+
+        if epoch < update_epoch:
+            images, labels = mixup_fn(images, labels)
+
+        optimizer.zero_grad()
+        outputs = model(images)  # logits
+        loss = criterion(outputs, labels)
+        loss.backward()
+        optimizer.step()
+        if scheduler is not None:
+            scheduler.step()
+        if epoch >= update_epoch:
+            ema.update(model)
+        train_loss += loss.item()
+
+    avg_train_loss = train_loss / len(train_loader)
+    return avg_train_loss
+
 def train_one_epoch_with_ema(model, ema, train_loader, criterion, optimizer, scheduler, device, update_epoch, epoch):
     model.train()
     train_loss = 0.0
@@ -236,13 +261,37 @@ def train(model, train_loader, val_loader, model_params, criterion, optimizer, s
 
     ema = EMA(model, decay=0.999)
 
+    mixup_fn = Mixup(
+        mixup_alpha=CFG.get('mixup_alpha', 0.2),
+        cutmix_alpha=CFG.get('cutmix_alpha', 1.0),
+        cutmix_minmax=None,
+        prob=CFG.get('mixup_prob', 1.0),
+        switch_prob=0.5,
+        mode='batch',
+        label_smoothing=0.0,
+        num_classes=model_params['num_classes']
+    )
+
+    mixup_fn = Mixup(
+        mixup_alpha=0.4,
+        cutmix_alpha=0.0,
+        prob=1.0,
+        switch_prob=0.0,
+        mode='batch',
+        label_smoothing=0.0,
+        num_classes=model_params['num_classes']
+    )
+
     for epoch in range(CFG['EPOCHS']):
         if epoch == freeze_epochs:
             print(f"Epoch {epoch+1}: Start Feature Extractor unfreeze and full-model fine-tuning")
             model.unfreeze()
         
         if ema is not None:
-            avg_train_loss = train_one_epoch_with_ema(model, ema, train_loader, criterion, optimizer, scheduler, device, freeze_epochs, epoch)
+            if mixup_fn is not None:
+                avg_train_loss = train_one_epoch_with_ema_mixup(model, ema, mixup_fn, train_loader, criterion, optimizer, scheduler, device, freeze_epochs, epoch)
+            else:
+                avg_train_loss = train_one_epoch_with_ema(model, ema, train_loader, criterion, optimizer, scheduler, device, freeze_epochs, epoch)
             avg_val_loss, val_accuracy, val_logloss, save_data_params = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
             ema_avg_val_loss, ema_val_accuracy, ema_val_logloss, ema_save_data_params = validation_one_epoch(ema.ema_model, val_loader, model_params, criterion, device, epoch)
             wandb.log({"Loss/Train": avg_train_loss})
