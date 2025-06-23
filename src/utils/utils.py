@@ -60,6 +60,7 @@ CFG = {
     'EPOCHS': 100,
     'LEARNING_RATE': 1e-4,
     'SEED': 42,
+    'N_FOLDS': 5,
 
     'EXPERIMENT_NAME' : None,
     'WRONG_DIR' : None

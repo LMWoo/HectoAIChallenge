@@ -42,9 +42,12 @@ def model_validation(model_path):
     else:
         return False
 
-def load_checkpoint():
+def load_checkpoint(kfold=None):
     target_dir = model_dir(CFG["EXPERIMENT_NAME"])
-    model_path = os.path.join(target_dir, "best_model.pth")
+    if kfold is not None:
+        model_path = os.path.join(target_dir, f"best_model_{kfold}.pth")
+    else:
+        model_path = os.path.join(target_dir, "best_model.pth")
 
     if model_validation(model_path):
         checkpoint = torch.load(model_path, map_location=torch.device('cpu'))

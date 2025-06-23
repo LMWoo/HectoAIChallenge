@@ -108,5 +108,19 @@ def get_datasets(augmentation_cls, transforms_cls, datasets_cls):
     
     return train_dataset, val_dataset, test_dataset, class_names
 
-    
-    
+def get_datasets_kfold(augmentation_cls, transforms_cls, datasets_cls):
+    train_root = os.path.join(project_path(), 'data/train')
+    test_root = os.path.join(project_path(), 'data/test')
+
+    full_dataset = datasets_cls(train_root, transform=None)
+    print(f'Total image num: {len(full_dataset)}')
+
+    targets = [label for _, label in full_dataset.samples]
+    class_names = full_dataset.classes
+
+    transforms = transforms_cls(CFG['IMG_SIZE'], augmentation_cls=augmentation_cls)
+    train_transform, val_transform = transforms.get_transforms()
+
+    test_dataset = datasets_cls(test_root, transform=val_transform, is_test=True)
+
+    return full_dataset, targets, test_dataset, class_names, train_transform, val_transform

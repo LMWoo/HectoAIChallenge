@@ -73,11 +73,11 @@ def top_n_confusion_matrix(epoch, top_n, cm, labels):
     return fig
 
 
-def save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params):
+def save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params, save_filename="best_model"):
     save_dir = model_dir(CFG['EXPERIMENT_NAME'])
     os.makedirs(save_dir, exist_ok=True)
 
-    dst = os.path.join(save_dir, f"best_model.pth")
+    dst = os.path.join(save_dir, f"{save_filename}.pth")
     torch.save({
         "epoch": epoch,
         "model_params": model_params,
@@ -342,6 +342,81 @@ def train(model, train_loader, val_loader, model_params, criterion, optimizer, s
             if val_logloss < best_logloss:
                 best_logloss = val_logloss
                 save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params)
+                trigger_times = 0
+            else:
+                trigger_times += 1
+                if trigger_times >= patience:
+                    return
+
+def train_fold(fold, model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device):
+    best_logloss = float('inf')
+    patience = 10
+    trigger_times = 0
+
+    ema = EMA(model, decay=0.999)
+
+    mixup_fn = None
+
+    for epoch in range(CFG['EPOCHS']):
+        if epoch == freeze_epochs:
+            print(f"Epoch {epoch+1}: Start Feature Extractor unfreeze and full-model fine-tuning")
+            model.unfreeze()
+        
+        if ema is not None:
+            if mixup_fn is not None:
+                avg_train_loss = train_one_epoch_with_ema_mixup(model, ema, mixup_fn, train_loader, criterion, optimizer, scheduler, device, freeze_epochs, epoch)
+            else:
+                avg_train_loss = train_one_epoch_with_ema(model, ema, train_loader, criterion, optimizer, scheduler, device, freeze_epochs, epoch)
+            avg_val_loss, val_accuracy, val_logloss, save_data_params = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
+            ema_avg_val_loss, ema_val_accuracy, ema_val_logloss, ema_save_data_params = validation_one_epoch(ema.ema_model, val_loader, model_params, criterion, device, epoch)
+            wandb.log({"Loss/Train": avg_train_loss})
+            wandb.log({"Loss/Valid": avg_val_loss})
+            wandb.log({"LogLoss/Valid": val_logloss})
+            wandb.log({"Accuracy/Valid": val_accuracy})
+            wandb.log({"LogLoss/EMA": ema_val_logloss})
+            wandb.log({"Accuracy/EMA": ema_val_accuracy})
+
+            if scheduler is not None:
+                wandb.log({"LearningRate/Train": scheduler.get_last_lr()[0]})
+            else:
+                wandb.log({"LearningRate/Train": CFG["LEARNING_RATE"]})
+            
+            print(f"[Epoch {epoch+1}] "
+                f"Train Loss: {avg_train_loss:.4f} | "
+                f"Val Loss: {avg_val_loss:.4f} | "
+                f"Val Acc: {val_accuracy:.2f}% | "
+                f"Val LogLoss: {val_logloss:.4f} || "
+                f"EMA Val Loss: {ema_avg_val_loss:.4f} | "
+                f"EMA Val Acc: {ema_val_accuracy:.2f}% | "
+                f"EMA LogLoss: {ema_val_logloss:.4f}")
+
+        else:
+            avg_train_loss = train_one_epoch(model, train_loader, criterion, optimizer, scheduler, device, epoch)
+            avg_val_loss, val_accuracy, val_logloss, save_data_params = validation_one_epoch(model, val_loader, model_params, criterion, device, epoch)
+            wandb.log({"Loss/Train": avg_train_loss})
+            wandb.log({"Loss/Valid": avg_val_loss})
+            wandb.log({"LogLoss/Valid": val_logloss})
+            wandb.log({"Accuracy/Valid": val_accuracy})
+            if scheduler is not None:
+                wandb.log({"LearningRate/Train": scheduler.get_last_lr()[0]})
+            else:
+                wandb.log({"LearningRate/Train": CFG["LEARNING_RATE"]})
+            
+            print(f"Train Loss : {avg_train_loss:.4f} || Valid Loss : {avg_val_loss:.4f} | Valid Accuracy : {val_accuracy:.4f}%")
+
+        if ema is not None:
+            if ema_val_logloss < best_logloss:
+                best_logloss = ema_val_logloss
+                save_best_epoch(ema.ema_model, epoch, optimizer, model_params, ema_val_logloss, ema_save_data_params, save_filename=f"best_model_{fold}")
+                trigger_times = 0
+            else:
+                trigger_times += 1
+                if trigger_times >= patience:
+                    return
+        else:
+            if val_logloss < best_logloss:
+                best_logloss = val_logloss
+                save_best_epoch(model, epoch, optimizer, model_params, val_logloss, save_data_params, save_filename=f"best_model_{fold}")
                 trigger_times = 0
             else:
                 trigger_times += 1
