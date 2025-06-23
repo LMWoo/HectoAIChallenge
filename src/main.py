@@ -89,11 +89,18 @@ def run_train_kfold(model_name, loss_name, optimizer_name, augmentation_name, tr
     kf = StratifiedKFold(n_splits=CFG["N_FOLDS"], shuffle=True, random_state=CFG['SEED'])
 
     for fold, (train_idx, val_idx) in enumerate(kf.split(np.arange(len(full_dataset)), targets)):
+        print(fold)
+        if fold == 0:
+            continue
+        if "fold_" in next_run_name:
+            next_run_name = next_run_name[7:]
+        next_run_name = f"fold_{fold}-" + next_run_name
+        
         wandb.init(
             project=project_name,
-            id=next_run_name,
-            name=f"fold_{fold}-{next_run_name}",
-            group=next_run_name,
+            id=f"{next_run_name}",
+            name=f"{next_run_name}",
+            group=f"{next_run_name}",
             notes="content-based classification model",
             tags=["content-based", "classification"],
             config={
@@ -161,7 +168,14 @@ def run_train_kfold(model_name, loss_name, optimizer_name, augmentation_name, tr
 
         train_fold(fold, model, train_loader, val_loader, model_params, criterion, optimizer, scheduler, freeze_epochs, device)
 
+        del model
+        del optimizer
+        del scheduler
+        del criterion
+        torch.cuda.empty_cache()
         wandb.finish()
+
+
 
 def run_train(model_name, loss_name, optimizer_name, augmentation_name, transforms_name, datasets_name, freeze_epochs, device):
     api_key  =os.environ["WANDB_API_KEY"]
