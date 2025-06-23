@@ -92,7 +92,7 @@ def run_train_kfold(model_name, loss_name, optimizer_name, augmentation_name, tr
         wandb.init(
             project=project_name,
             id=next_run_name,
-            name=f"{next_run_name}-fold{fold}",
+            name=f"fold_{fold}-{next_run_name}",
             group=next_run_name,
             notes="content-based classification model",
             tags=["content-based", "classification"],
