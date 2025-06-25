@@ -90,7 +90,7 @@ def run_train_kfold(model_name, loss_name, optimizer_name, augmentation_name, tr
 
     for fold, (train_idx, val_idx) in enumerate(kf.split(np.arange(len(full_dataset)), targets)):
         print(fold)
-        if fold == 0:
+        if fold <= 4:
             continue
         if "fold_" in next_run_name:
             next_run_name = next_run_name[7:]
