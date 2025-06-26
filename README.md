@@ -19,13 +19,15 @@
 본 대회는 헥토의 우수 인재 발굴 및 채용 연계를 목적으로 기획된 정기적인 AI 챌린지 시리즈의 일환이며, 참가자들은 창의적이고 고도화된 AI 모델링 전략을 통해 높은 분류 성능을 달성하는 데 도전하게 됩니다.
 
 ### 3. 대회 결과
+ - 1396 팀중 **168등**
  - <img width="1207" alt="스크린샷 2025-06-21 오후 7 16 06" src="https://github.com/user-attachments/assets/3c340a77-62e7-4af2-8783-ba8c057bc5b2" />
 
 ### 4. 모델 실험 결과
 
 | 실험 구성 | Pretrained model | Loss | LR Scheduler | Optimizer | 기타 기법 | Score (Log Loss) |
 |-----------|--------------------|-------------|-------------------|------------|------------------------|------------------|
-| 1 | ResNet50 (torchvision)   | CrossEntropy | -                 | AdamW     | -                      | **0.317**        |
+| 1 | ResNet50 (torchvision)   | CrossEntropy | -                 | AdamW     | -                      | **0.319**        |
+| 1 | ResNet50 (timm)          | CrossEntropy | -                 | AdamW     | -                      | **0.317**        |
 | 2 | ConvNeXt (timm)          | CrossEntropy | -                 | AdamW     | -                      | **0.251**        |
 | 3 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | -                      | **0.195**        |
 | 4 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | EMA                    | **0.185 (최종 제출)** |
@@ -33,6 +35,8 @@
 
 
 ### 4. 대회 후기
+ - pretrained 모델 resnet50 -> conext 변경시에도 중요하나 optimizer, scheduler, loss를 어떻게 조합하는냐에 따라 성능향상에 도움이 된다는걸 알았음 
+ - upstage mlops 프로젝트와 병행하며 진행하여 실험 결과를 제대로 기록을 못한게 아쉬움
  - 
 
 ### 5. 대회 작업 내용
