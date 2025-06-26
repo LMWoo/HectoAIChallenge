@@ -80,12 +80,12 @@
  - Augmentation 시각화 이미지 예시
    <img width="707" alt="스크린샷 2025-06-26 오후 9 06 37" src="https://github.com/user-attachments/assets/283db780-e231-4d1d-a46a-4e00026013c9" />
 
-### 8. Confusion Matrix를 이용한 분석 예시
+### 8. Confusion Matrix를 이용한 분석 예시 (이 대회 이후 할 예정)
    * epoch 10에서 confusion matrix : 대각선 이외에 파란색 점들이 흩어져 있음, 오분류 다수 존재
-   <img width="542" alt="스크린샷 2025-06-26 오후 10 19 01" src="https://github.com/user-attachments/assets/f23d9a4e-5a93-4d67-8b67-b7ca9d1399a9" />
+     <img width="542" alt="스크린샷 2025-06-26 오후 10 19 01" src="https://github.com/user-attachments/assets/f23d9a4e-5a93-4d67-8b67-b7ca9d1399a9" />
 
    * epoch 62에서 confusion matrix : 거의 모든 칸이 0임, 오분류 크게 감소, 그러나 더_뉴_그랜드_스타렉스_2018_2021, 그랜드_스타렉스_2016_2018간 confusion이 존재, 이를 해결을 위한 두 이미지간 EDA 분석 및 적절한 Augmentation, 모델링 필요
-   <img width="542" alt="스크린샷 2025-06-26 오후 10 19 17" src="https://github.com/user-attachments/assets/ea52443c-3e0a-491c-9062-b07199a955bf" />
+     <img width="542" alt="스크린샷 2025-06-26 오후 10 19 17" src="https://github.com/user-attachments/assets/ea52443c-3e0a-491c-9062-b07199a955bf" />
 
 
    
