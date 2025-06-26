@@ -30,7 +30,20 @@
  | 6 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | EMA, Mixup                    | **0.183 (대회 종료 후 추가 실험)** |
  | 7 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | EMA, Mixup, kfold Ensemble    | **0.172 (대회 종료 후 추가 실험)*** |
 
-
+### 6. 설치 및 실험
+ - 설치
+   ```
+   git clone https://github.com/LMWoo/HectoAIChallenge.git
+   cd HectoAIChallenge
+   docker compose up
+   ```
+   
+ - 실행
+   ```
+   docker exec -it hecto-exp-container bash
+   bash ./src/experiment_EMA_KFOLD_ENSEMBLE_FOCAL_LOSS_early_stopping_freeze_adamw_timm_convnext.sh
+   ```
+   
 ### 6. 대회 후기
  - **Pretrained 모델 변경(ResNet50 → ConvNeXt)** 자체도 성능에 영향을 주는 것 뿐만 아니라 **Optimizer, Scheduler, Loss 조합**도 모델 성능 향상에 중요한 요소라는 점을 경험
 
@@ -45,7 +58,7 @@
 
 
  - **실험 기록이 제일 중요**
-  
+
 ### 7. 기타 대회 작업 내용
  - [EDA 작업 내용](./notebooks/EDA.ipynb)
  - [Augmentation 시각화 코드](./notebooks/Augmentation.ipynb)
