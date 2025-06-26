@@ -77,6 +77,7 @@
 ### 7. 기타 대회 작업 내용
  - [EDA 작업 내용](./notebooks/EDA.ipynb)
  - [Augmentation 시각화 코드](./notebooks/Augmentation.ipynb)
- - 시각화 이미지 예시
+ - Augmentation 시각화 이미지 예시
    <img width="707" alt="스크린샷 2025-06-26 오후 9 06 37" src="https://github.com/user-attachments/assets/283db780-e231-4d1d-a46a-4e00026013c9" />
-
+ - Confusion Matrix 이미지 예시
+![best_epoch_11_top_n_30_confusion_matrix](https://github.com/user-attachments/assets/c636acaa-ed68-4f72-9fba-53cf78b9e904)
