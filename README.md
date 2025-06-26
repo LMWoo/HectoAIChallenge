@@ -31,7 +31,7 @@
  | 7 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | EMA, Mixup, kfold Ensemble    | **0.172 (대회 종료 후 추가 실험)*** |
 
 ### 6. 설치 및 실험
- - 설치
+ - 코드 준비
    ```
    git clone https://github.com/LMWoo/HectoAIChallenge.git
    cd HectoAIChallenge
@@ -45,9 +45,13 @@
    * env.template를 **삭제가 아닌 복사** -> env 변경
    * WANDB_API_KEY=본인 wandb api 키 입력
 
- - 실행
+ - docker 및 container 설치
    ```
    docker compose up
+   ```
+
+ - 실행
+   ```
    docker exec -it hecto-exp-container bash
    bash ./src/experiment_EMA_KFOLD_ENSEMBLE_FOCAL_LOSS_early_stopping_freeze_adamw_timm_convnext.sh
    ```
