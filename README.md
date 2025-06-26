@@ -1,7 +1,5 @@
 # HectoAIChallenge
 
-## HectoAIChallenge
-
 ### 1. 대회 정보
 
  - [대회 페이지](https://dacon.io/competitions/official/236493/overview/description)
@@ -15,11 +13,11 @@
 ### 3. 대회 참여 목표
  - 단순한 모델 변경 뿐만 아니라 **이론적으로만 알고 있었던 다양한 모델 성능 향상에 도움이 되는 기법**들을 실험해 보며 몸소 체득을 하는 것이 목표, 이를 통해 실전 문제 해결 능력과 깊이 있는 모델링 전략 능력을 향상시키고자 합니다.
 
-### 3. 대회 결과
+### 4. 대회 결과
  - Private : 1396 팀중 **168등**
    <img width="1207" alt="스크린샷 2025-06-21 오후 7 16 06" src="https://github.com/user-attachments/assets/3c340a77-62e7-4af2-8783-ba8c057bc5b2" />
 
-### 4. 모델 실험 결과
+### 5. 모델 실험 결과
  * data augumentation : Center Crop + Vertical Flip + Rotation + ColorJitter + Contrast + GaussianBlur + Erasing + RandAugment (모든 실험 동일)
 
  | 실험 | Pretrained model | Loss | LR Scheduler | Optimizer | 기타 기법 | Score (Log Loss) |
@@ -33,7 +31,7 @@
  | 7 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | AdamW     | EMA, Mixup, kfold Ensemble    | **0.172 (대회 종료 후 추가 실험)*** |
 
 
-### 4. 대회 후기
+### 6. 대회 후기
  - **Pretrained 모델 변경(ResNet50 → ConvNeXt)** 자체도 성능에 영향을 주는 것 뿐만 아니라 **Optimizer, Scheduler, Loss 조합**도 모델 성능 향상에 중요한 요소라는 점을 경험
 
  - 대회를 [Upstage MLOps](https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps) 프로젝트와 병행해서 진행하다 보니, 실험 결과를 체계적으로 기록하고 관리하지 못한 점과 TTA, Ensemble을 깊이 있게 다루지 못한 것이 아쉬움으로 남음
@@ -48,7 +46,7 @@
 
  - **실험 기록이 제일 중요**
   
-### 5. 기타 대회 작업 내용
+### 7. 기타 대회 작업 내용
  - [EDA 작업 내용](./notebooks/EDA.ipynb)
  - [Augmentation 시각화 코드](./notebooks/Augmentation.ipynb)
  - 시각화 이미지 예시
