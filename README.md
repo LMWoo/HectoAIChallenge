@@ -38,7 +38,7 @@
    ```
 
  - 데이터 준비
-   * [대회 데이터](https://dacon.io/competitions/official/236493/data)에서 데이터 받은 후 압축 해제
+   * [해당 사이트](https://dacon.io/competitions/official/236493/data)에서 데이터 받은 후 압축 해제
    * 받은 데이터 폴더 이름을 data로 변경 후 -> HectoAIChallenge/data로 이동
 
  - env 설정
