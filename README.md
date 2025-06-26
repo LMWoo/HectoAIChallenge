@@ -35,7 +35,6 @@
    ```
    git clone https://github.com/LMWoo/HectoAIChallenge.git
    cd HectoAIChallenge
-   docker compose up
    ```
 
  - env 설정
@@ -44,6 +43,7 @@
 
  - 실행 (GPU 부족시 utils/utils.py에 CFG['BATCH_SIZE'] 조절)
    ```
+   docker compose up
    docker exec -it hecto-exp-container bash
    bash ./src/experiment_EMA_KFOLD_ENSEMBLE_FOCAL_LOSS_early_stopping_freeze_adamw_timm_convnext.sh
    ```
