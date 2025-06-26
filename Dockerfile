@@ -5,6 +5,7 @@ RUN apt update && apt install -y \
     default-libmysqlclient-dev \
     pkg-config \
     build-essential \
+    fonts-nanum \
  && apt clean && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt /workspace
