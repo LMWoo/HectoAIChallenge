@@ -23,13 +23,13 @@
 
 ### 4. 모델 실험 결과
 
-| 실험 구성 | 주요 기법 | 모델 | Loss | LR Scheduler | 기타 기법 | Score (Log Loss) |
+| 실험 구성 | 모델 | Loss | LR Scheduler | 기타 기법 | Optimizer | Score (Log Loss) |
 |-----------|-----------|-------|------|--------------|-----------|------------------|
-| 1 | AdamW | ResNet50 | CrossEntropy | - | - | **0.317** |
-| 2 | AdamW | ConvNeXt | CrossEntropy | - | - | **0.251** |
-| 3 | AdamW | ConvNeXt | Focal Loss | CosineAnnealing | - | **0.195** |
-| 4 | AdamW | ConvNeXt | Focal Loss | CosineAnnealing | **EMA** | **0.185** |
-| 5 | AdamW (KFold 앙상블) | ConvNeXt | Focal Loss | CosineAnnealing | **EMA**, Ensemble | **0.172*** |
+| 1 | ResNet50 | CrossEntropy | - | - | AdamW | **0.317** |
+| 2 | ConvNeXt | CrossEntropy | - | - | AdamW | **0.251** |
+| 3 | ConvNeXt | Focal Loss | CosineAnnealing | - | AdamW | **0.195** |
+| 4 | ConvNeXt | Focal Loss | CosineAnnealing | **EMA** | AdamW | **0.185 (최종 제출)**  |
+| 5 | ConvNeXt | Focal Loss | CosineAnnealing | **EMA**, Ensemble | AdamW (KFold 앙상블) |  **0.172 (대회 종료 후 추가 실험)***  |
 
 ### 4. 대회 후기
  - 
