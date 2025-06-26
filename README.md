@@ -21,12 +21,15 @@
 ### 3. 대회 결과
  - <img width="1207" alt="스크린샷 2025-06-21 오후 7 16 06" src="https://github.com/user-attachments/assets/3c340a77-62e7-4af2-8783-ba8c057bc5b2" />
 
-### 4. Ablation Study
- - adamw + resnet50 : 0.317
- - adamw + convnext : 0.251
- - focal loss + cosine anealing LR + adamw + convnext : 0.195
- - ema + focal loss + cosine anealing LR + focal loss + adamw + convnext : 0.188 (최종 제출)
- - data kfold split ensemble + ema + focal loss + cosine anealing LR + focal loss + adamw + covnext : 0.172 (대회 종료 후 추가 실험)
+### 4. 모델 실험 결과
+
+| 실험 구성 | 주요 기법 | 모델 | Loss | LR Scheduler | 기타 기법 | Score (Log Loss) |
+|-----------|-----------|-------|------|--------------|-----------|------------------|
+| 1 | AdamW | ResNet50 | CrossEntropy | - | - | **0.317** |
+| 2 | AdamW | ConvNeXt | CrossEntropy | - | - | **0.251** |
+| 3 | AdamW | ConvNeXt | Focal Loss | CosineAnnealing | - | **0.195** |
+| 4 | AdamW | ConvNeXt | Focal Loss | CosineAnnealing | **EMA** | **0.185** |
+| 5 | AdamW (KFold 앙상블) | ConvNeXt | Focal Loss | CosineAnnealing | **EMA**, Ensemble | **0.172*** |
 
 ### 4. 대회 후기
  - 
