@@ -38,7 +38,7 @@
    docker compose up
    ```
    
- - 실행
+ - 실행 (GPU 부족시 utils/utils.py에 CFG['BATCH_SIZE'] 조절)
    ```
    docker exec -it hecto-exp-container bash
    bash ./src/experiment_EMA_KFOLD_ENSEMBLE_FOCAL_LOSS_early_stopping_freeze_adamw_timm_convnext.sh
