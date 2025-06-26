@@ -25,7 +25,7 @@
  - adamw + resnet50 : 0.317
  - adamw + convnext : 0.251
  - focal loss + cosine anealing LR + adamw + convnext : 0.195
- - ema + focal loss + cosine anealing LR + focal loss + adamw + convnext : 0.185
+ - ema + focal loss + cosine anealing LR + focal loss + adamw + convnext : 0.188 (최종 제출)
  - data kfold split ensemble + ema + focal loss + cosine anealing LR + focal loss + adamw + covnext : 0.172 (대회 종료 후 추가 실험)
 
 ### 4. 대회 후기
