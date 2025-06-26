@@ -23,13 +23,13 @@
 
 ### 4. 모델 실험 결과
 
-| 실험 구성 | 모델 | Loss | LR Scheduler | 기타 기법 (Optimizer 포함) | Score (Log Loss) |
-|-----------|-------|------|----------------|-----------------------------|------------------|
-| 1 | ResNet50 (torchvision) | CrossEntropy | - | AdamW | **0.317** |
-| 2 | ConvNeXt (timm) | CrossEntropy | - | AdamW | **0.251** |
-| 3 | ConvNeXt (timm) | Focal Loss | CosineAnnealing | AdamW | **0.195** |
-| 4 | ConvNeXt (timm) | Focal Loss | CosineAnnealing | EMA, AdamW | **0.185 (최종 제출)** |
-| 5 | ConvNeXt (timm) | Focal Loss | CosineAnnealing | EMA, Ensemble, AdamW (KFold 앙상블) | **0.172 (대회 종료 후 추가 실험)*** |
+| 실험 구성 | 모델 | Loss | LR Scheduler | 기타 기법 | Optimizer | Score (Log Loss) |
+|-----------|--------------------|-------------|-------------------|-----------------------|--------------------------|------------------|
+| 1 | ResNet50 (torchvision)   | CrossEntropy | -                 | -                     | AdamW                   | **0.317**        |
+| 2 | ConvNeXt (timm)          | CrossEntropy | -                 | -                     | AdamW                   | **0.251**        |
+| 3 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | -                     | AdamW                   | **0.195**        |
+| 4 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | EMA                   | AdamW                   | **0.185 (최종 제출)** |
+| 5 | ConvNeXt (timm)          | Focal Loss   | CosineAnnealing   | EMA, Ensemble         | AdamW (KFold 앙상블)   | **0.172 (대회 종료 후 추가 실험)*** |
 
 ### 4. 대회 후기
  - 
