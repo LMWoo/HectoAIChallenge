@@ -45,12 +45,15 @@
    * env.template를 **삭제가 아닌 복사** -> env 변경
    * WANDB_API_KEY=본인 wandb api 키 입력
 
- - 실행 (GPU 부족시 utils/utils.py에 CFG['BATCH_SIZE'] 조절)
+ - 실행
    ```
    docker compose up
    docker exec -it hecto-exp-container bash
    bash ./src/experiment_EMA_KFOLD_ENSEMBLE_FOCAL_LOSS_early_stopping_freeze_adamw_timm_convnext.sh
    ```
+   
+ - 기타 사항
+   *  GPU 부족시 utils/utils.py에서 CFG['BATCH_SIZE'] 조절
    
 ### 6. 대회 후기
  - **Pretrained 모델 변경(ResNet50 → ConvNeXt)** 자체도 성능에 영향을 주는 것 뿐만 아니라 **Optimizer, Scheduler, Loss 조합**도 모델 성능 향상에 중요한 요소라는 점을 경험
