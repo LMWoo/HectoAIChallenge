@@ -37,7 +37,11 @@
    cd HectoAIChallenge
    docker compose up
    ```
-   
+
+ - env 설정
+   * env.template -> env 변경
+   * WANDB_API_KEY=본인 wandb api 키 입력
+
  - 실행 (GPU 부족시 utils/utils.py에 CFG['BATCH_SIZE'] 조절)
    ```
    docker exec -it hecto-exp-container bash
