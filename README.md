@@ -20,7 +20,7 @@
 
 ### 3. 대회 결과
  - 1396 팀중 **168등**
- - <img width="1207" alt="스크린샷 2025-06-21 오후 7 16 06" src="https://github.com/user-attachments/assets/3c340a77-62e7-4af2-8783-ba8c057bc5b2" />
+   <img width="1207" alt="스크린샷 2025-06-21 오후 7 16 06" src="https://github.com/user-attachments/assets/3c340a77-62e7-4af2-8783-ba8c057bc5b2" />
 
 ### 4. 모델 실험 결과
 
@@ -37,14 +37,11 @@
 ### 4. 대회 후기
  - **Pretrained 모델 변경(ResNet50 → ConvNeXt)** 자체도 성능에 영향을 주는 것 뿐만 아니라 **Optimizer, Scheduler, Loss 조합**도 모델 성능 향상에 중요한 요소라는 점을 경험
 
- - 대회를 [Upstage MLOps](https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps)  프로젝트와 병행해서 진행하다 보니,
-실험 결과를 체계적으로 기록하고 관리하지 못한 점이 아쉬움으로 남음
-→ 다음 대회에서는 MLflow 등으로 실험 관리 자동화를 도입할 계획
+ - 대회를 [Upstage MLOps](https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps)  프로젝트와 병행해서 진행하다 보니, 실험 결과를 체계적으로 기록하고 관리하지 못한 점이 아쉬움으로 남음
+   -> 다음 대회에서는 wandb 등으로 실험 기록 및 분석을 할 계획
 
- - TTA(Test-Time Augmentation)를 너무 단순하게 좌우 반전만 적용해,
-추론 성능 향상이 거의 없었음
-→ 다음 대회에서는 rotation, crop, scaling, blur 등 다양한 TTA 조합을 적용해
-좀 더 강건한 예측 성능 확보를 목표로 할 예정
+ - TTA(Test-Time Augmentation)를 너무 단순하게 좌우 반전만 적용해, 추론 성능 향상이 거의 없었음
+   -> 다음 대회에서는 rotation, crop, scaling, blur 등 다양한 TTA 조합을 적용해 좀 더 강건한 예측 성능 확보를 목표로 할 예정
 
 ### 5. 대회 작업 내용
  - 
