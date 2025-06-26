@@ -50,3 +50,4 @@
   
 ### 5. 기타 대회 작업 내용
  - [EDA 작업 내용](./notebooks/EDA.ipynb)
+ - [Augmentation 시각화 코드](./notebooks/Augmentation.ipynb)
