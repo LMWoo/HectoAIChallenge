@@ -47,4 +47,4 @@
  - **실험 기록이 제일 중요**
   
 ### 5. 기타 대회 작업 내용
- - [EDA 작업 내용]([https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps](https://github.com/LMWoo/HectoAIChallenge/blob/master/notebooks/EDA.ipynb))
+ - [EDA 작업 내용](./notebooks/EDA.ipynb)
