@@ -51,3 +51,6 @@
 ### 5. 기타 대회 작업 내용
  - [EDA 작업 내용](./notebooks/EDA.ipynb)
  - [Augmentation 시각화 코드](./notebooks/Augmentation.ipynb)
+      ![5시리즈_F10_2010_2016_0058](https://github.com/user-attachments/assets/10628159-cbfa-4b33-bb62-1cfb68bcae06)
+      ![5시리즈_F10_2010_2016_0058](https://github.com/user-attachments/assets/10628159-cbfa-4b33-bb62-1cfb68bcae06)
+         
