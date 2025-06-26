@@ -37,7 +37,7 @@
 ### 4. 대회 후기
  - pretrained 모델 resnet50 -> conext 변경시에도 중요하나 optimizer, scheduler, loss를 어떻게 조합하는냐에 따라 성능향상에 도움이 된다는걸 알았음 
  - upstage mlops 프로젝트와 병행하며 진행하여 실험 결과를 제대로 기록을 못한게 아쉬움
- - 
+ - 너무 단순한 TTA 방식을 해서 TTA 추론시에는 크게 성능 향상을 못봄, 다음 대회에서는 좌우 반전 뿐만 아니라 rotation, crop, scaling, blur 등을 시도할 계획
 
 ### 5. 대회 작업 내용
  - 
