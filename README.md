@@ -34,7 +34,7 @@
 ### 4. 대회 후기
  - **Pretrained 모델 변경(ResNet50 → ConvNeXt)** 자체도 성능에 영향을 주는 것 뿐만 아니라 **Optimizer, Scheduler, Loss 조합**도 모델 성능 향상에 중요한 요소라는 점을 경험
 
- - 대회를 [Upstage MLOps](https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps) 프로젝트와 병행해서 진행하다 보니, 실험 결과를 체계적으로 기록하고 관리하지 못한 점이 아쉬움으로 남음
+ - 대회를 [Upstage MLOps](https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps) 프로젝트와 병행해서 진행하다 보니, 실험 결과를 체계적으로 기록하고 관리하지 못한 점과 TTA, Ensemble을 깊이 있게 다루지 못한 것이 아쉬움으로 남음
    - 초반에 wandb등을 사용하였으나 체계적인 기록없이 (val loss만 기록)사용하여 나중에 분석을 제대로 하지 못함, 후반에 confusion matrix 등을 도입하였고 다음 대회 때 추가 분석 기법을 도입해 다양한 분석으로 실험을 할 계획
 
  - TTA(Test-Time Augmentation)를 너무 단순하게 좌우 반전만 적용해, 추론 성능 향상이 거의 없었음
@@ -43,7 +43,8 @@
  - 실험 종류가 많아지면서 이전 실험에서 사용했던 파라미터들을 체계적으로 관리할 필요성을 절실히 느낌
    - 이를 해결하기 위해 hydra를 도입하여 복잡한 코드 간소화와 config기반 실험 관리 체계를 도입하여 실험할 예정
 
+
  - **실험 기록이 제일 중요**
   
 ### 5. 기타 대회 작업 내용
- - [EDA]([https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps](https://github.com/LMWoo/HectoAIChallenge/blob/master/notebooks/EDA.ipynb)
+ - [EDA 작업 내용]([https://github.com/LMWoo/UpstageAILab_13/tree/master/MLOps](https://github.com/LMWoo/HectoAIChallenge/blob/master/notebooks/EDA.ipynb))
